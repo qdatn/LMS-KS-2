@@ -1,0 +1,135 @@
+<div class="px-5" th:fragment="content" xmlns:th="http://www.w3.org/1999/xhtml">
+    <div class="container mt-4">
+        <h2 class="text-center">Course Enrollments</h2>
+
+        <div class="card-body mb-3">
+            <div class="row align-items-center gy-3">
+                <div class="col-md-6 d-flex">
+                    <form th:action="@{/enrollments}" method="get" class="input-group me-2">
+                        <input type="text" class="form-control" name="searchTerm" th:value="${searchTerm}"
+                               placeholder="Search by course name" aria-label="Enrollment search">
+                        <button type="submit" class="btn btn-sm btn-outline-secondary" aria-label="Search" title="Search">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </form>
+                    <button type="button" class="btn btn-sm btn-outline-secondary"
+                            onclick="window.location.href='/enrollments'"
+                            title="Reload" aria-label="Reload enrollments">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+
+                <div class="col-md-6 d-flex justify-content-end gap-2 flex-wrap">
+                    <a href="/training-programs" class="btn btn-outline-secondary" title="Back to List">
+                        <i class="bi bi-arrow-left-circle"></i>
+                    </a>
+                    <a th:href="@{/enrollments(groupByCourse=true)}"
+                       class="btn btn-outline-info" title="View Grouped by Course">
+                        <i class="bi bi-card-list"></i> Group by Course
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${courseEnrollments == null or courseEnrollments.content == null or #lists.isEmpty(courseEnrollments.content)}" class="text-center">
+            <i class="fas fa-exclamation-circle"></i> <span>No course enrollments available.</span>
+        </div>
+
+        <div id="normalView" th:unless="${#lists.isEmpty(courseEnrollments.content)}">
+            <div class="card-body p-4" style="max-height: 450px; overflow-y: auto;">
+                <table class="table table-bordered table-hover align-middle">
+                    <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Course Name</th>
+                        <th>Student Name</th>
+                        <th>Email</th>
+                        <th>Enrollment Date</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="enrollment, iterStat : ${courseEnrollments}">
+                        <td th:text="${iterStat.count + (courseEnrollments.number * courseEnrollments.size)}"></td>
+                        <td th:text="${enrollment.course != null ? enrollment.course.name : 'N/A'}"></td>
+                        <td th:text="${enrollment.user != null ? enrollment.user.firstName + ' ' + enrollment.user.lastName : 'N/A'}"></td>
+                        <td th:text="${enrollment.user != null ? enrollment.user.email : 'N/A'}"></td>
+                        <td th:text="${enrollment.enrollmentDate != null ? #temporals.format(enrollment.enrollmentDate, 'dd-MM-yyyy HH:mm') : 'N/A'}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="groupedView" class="card-body p-4" style="display:none; max-height: 450px; overflow-y:auto;">
+            <div th:each="entry : ${groupedEnrollments}" class="mb-4">
+                <h5 class="fw-bold border-bottom pb-2 mb-3">
+                    <i class="bi bi-journal-code me-1"></i>
+                    <span th:text="${entry.key.name}"></span>
+                    <span class="badge bg-primary rounded-pill ms-2" th:text="${#lists.size(entry.value)} + ' students'"></span>
+                </h5>
+                <ul class="list-group list-group-flush">
+                    <li th:each="student : ${entry.value}" class="list-group-item d-flex justify-content-between">
+                        <span th:text="${student.firstName + ' ' + student.lastName}"></span>
+                        <span class="text-muted" th:text="${student.email}"></span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="mt-4 mb-3 d-flex justify-content-between align-items-center flex-wrap">
+            <span class="fw-bold">Total Records: <span th:text="${courseEnrollments.totalElements}">0</span></span>
+
+            <nav aria-label="Course Enrollments pagination">
+                <ul class="pagination mb-0">
+                    <li class="page-item" th:classappend="${courseEnrollments.first} ? 'disabled'">
+                        <a class="page-link" th:href="@{/enrollments(page=0, size=${courseEnrollments.size})}" aria-label="First">
+                            <i class="bi bi-chevron-double-left"></i>
+                        </a>
+                    </li>
+                    <li class="page-item" th:classappend="${courseEnrollments.first} ? 'disabled'">
+                        <a class="page-link" th:href="@{/enrollments(page=${courseEnrollments.number - 1}, size=${courseEnrollments.size})}" aria-label="Previous">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+
+                    <li class="page-item" th:classappend="${courseEnrollments.number == 0} ? 'active'">
+                        <a class="page-link" th:href="@{/enrollments(page=0, size=${courseEnrollments.size})}">1</a>
+                    </li>
+                    <li class="page-item disabled" th:if="${courseEnrollments.number > 2}">
+                        <span class="page-link">...</span>
+                    </li>
+                    <th:block th:each="i : ${#numbers.sequence(courseEnrollments.number - 1, courseEnrollments.number + 1)}" th:if="${i > 0 and i < courseEnrollments.totalPages - 1}">
+                        <li class="page-item" th:classappend="${courseEnrollments.number == i} ? 'active'">
+                            <a class="page-link" th:href="@{/enrollments(page=${i}, size=${courseEnrollments.size})}" th:text="${i + 1}"></a>
+                        </li>
+                    </th:block>
+                    <li class="page-item disabled" th:if="${courseEnrollments.number < courseEnrollments.totalPages - 3}">
+                        <span class="page-link">...</span>
+                    </li>
+                    <li class="page-item" th:classappend="${courseEnrollments.number == courseEnrollments.totalPages - 1} ? 'active'" th:if="${courseEnrollments.totalPages > 1}">
+                        <a class="page-link" th:href="@{/enrollments(page=${courseEnrollments.totalPages - 1}, size=${courseEnrollments.size})}" th:text="${courseEnrollments.totalPages}"></a>
+                    </li>
+
+                    <li class="page-item" th:classappend="${courseEnrollments.last} ? 'disabled'">
+                        <a class="page-link" th:href="@{/enrollments(page=${courseEnrollments.number + 1}, size=${courseEnrollments.size})}" aria-label="Next">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                    <li class="page-item" th:classappend="${courseEnrollments.last} ? 'disabled'">
+                        <a class="page-link" th:href="@{/enrollments(page=${courseEnrollments.totalPages - 1}, size=${courseEnrollments.size})}" aria-label="Last">
+                            <i class="bi bi-chevron-double-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+    <script>
+        function toggleGroupedView() {
+            const grouped = document.getElementById("groupedView");
+            const normal = document.getElementById("normalView");
+            grouped.style.display = grouped.style.display === 'none' ? 'block' : 'none';
+            normal.style.display = normal.style.display === 'none' ? 'block' : 'none';
+        }
+    </script>
+</div>

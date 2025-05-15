@@ -1,0 +1,92 @@
+body {
+    background: #f8f9fa;
+    color: #333;
+    font-family: 'Arial', sans-serif;
+}
+
+.custom-topbar {
+    background: linear-gradient(90deg, #0f172a 0%, #1e293b 100%);
+    padding: 20px;
+    text-align: center;
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    position: relative;
+    z-index: 1000;
+}
+
+.search-container {
+    margin: 30px auto;
+    max-width: 700px;
+    position: relative;
+}
+
+.search-bar {
+    border-radius: 30px;
+    padding: 15px 25px;
+    border: 1px solid #0f172a;
+    background: white;
+    color: #333;
+    font-size: 16px;
+    transition: all 0.4s ease-in-out;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.search-bar::placeholder {
+    color: #666;
+}
+
+.search-bar:focus {
+    outline: none;
+    transform: scale(1.03);
+    border-color: #1e293b;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+}
+
+.opblock {
+    background: white;
+    border-radius: 15px;
+    margin-bottom: 20px;
+    transition: all 0.3s ease-in-out;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.opblock:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.opblock.hidden {
+    opacity: 0;
+    transform: translateY(-10px);
+    display: none;
+}
+
+.highlight {
+    background: #f0f9ff !important;
+    border: 1px solid #1e40af;
+    box-shadow: 0 5px 20px rgba(30, 64, 175, 0.2);
+}
+
+/* Customize Swagger UI elements for light theme */
+.swagger-ui .topbar { display: none; } /* Hide default topbar */
+.swagger-ui .scheme-container {
+    background: transparent;
+    box-shadow: none;
+}
+.swagger-ui .info .title {
+    color: #1e293b;
+    font-weight: bold;
+}
+.swagger-ui .opblock-tag {
+    color: #1e40af;
+    font-weight: bold;
+}
+.swagger-ui .opblock-summary-method {
+    background: #1e40af;
+    color: white;
+    border-radius: 5px;
+}
+.swagger-ui { background: #f8f9fa; }

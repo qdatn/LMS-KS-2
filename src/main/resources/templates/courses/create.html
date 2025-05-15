@@ -1,0 +1,253 @@
+<div class="px-5" th:fragment="content" xmlns:th="http://www.w3.org/1999/xhtml">
+    <div class="container-fluid mt-5">
+        <div class="d-flex">
+            <div class="flex-grow-1">
+                <div class="card shadow-lg border-0 rounded-4">
+                    <div class="card-header bg-primary text-white rounded-top-4 d-flex align-items-center">
+                        <i class="bi bi-book me-2 fs-4"></i>
+                        <h1 class="fw-bold mb-0">Create Course</h1>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="card-body p-4" style="max-height: 60vh; overflow-y: auto;">
+                            <form id="createForm" th:action="@{/courses}" method="post" th:object="${course}"
+                                  enctype="multipart/form-data">
+
+                                <!-- Hiển thị toàn bộ lỗi nếu có -->
+                                <div th:if="${#fields.hasErrors('*')}" class="alert alert-danger">
+                                    <ul>
+                                        <li th:each="err : ${#fields.errors('*')}" th:text="${err}"></li>
+                                    </ul>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="name" class="form-label fw-bold">
+                                            <i class="bi bi-bookmark me-1"></i>Name</label>
+                                        <input type="text" class="form-control" id="name" th:field="*{name}" maxlength="100"
+                                               placeholder="Enter course name">
+                                        <div class="text-danger" th:if="${#fields.hasErrors('name')}"
+                                             th:errors="*{name}"></div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="code" class="form-label fw-bold">
+                                            <i class="bi bi-bookmark me-1"></i>Code</label>
+                                        <input type="text" class="form-control" id="code" th:field="*{code} " maxlength="20"
+                                               placeholder="Enter course code">
+                                        <div class="text-danger" th:if="${#fields.hasErrors('code')}"
+                                             th:errors="*{code}"></div>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex gap-3">
+                                    <!-- Description Section -->
+                                    <div class="w-50">
+                                        <label for="description" class="form-label fw-bold d-block">
+                                            <i class="bi bi-card-text me-1"></i>Description
+                                        </label>
+                                        <textarea class="form-control" id="description" th:field="*{description}"
+                                                  rows="8" maxlength="1000" placeholder="Enter course description"></textarea>
+                                        <div class="text-danger" th:if="${#fields.hasErrors('description')}"
+                                             th:errors="*{description}"></div>
+                                    </div>
+
+                                    <!-- Image Upload Section -->
+                                    <div class="w-50">
+                                        <label for="imageFile" class="form-label fw-bold d-block">
+                                            <i class="bi bi-image me-1"></i>Image
+                                        </label>
+                                        <input type="file" class="form-control" id="imageFile" name="imageFile">
+                                        <div class="mt-3">
+                                            <img id="previewImage" src="" class="img-thumbnail"
+                                                 style="max-width: 100%; display: none;">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="creator" class="form-label fw-bold">
+                                            <i class="bi bi-person-circle me-1"></i>Creator</label>
+                                        <select class="form-select" id="creator" th:field="*{creator}">
+                                            <option th:each="user : ${users}" th:value="${user.id}"
+                                                    th:text="${user.username}"></option>
+                                        </select>
+                                        <div class="text-danger" th:if="${#fields.hasErrors('creator')}"
+                                             th:errors="*{creator}"></div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="instructor" class="form-label fw-bold">
+                                            <i class="bi bi-person-workspace me-1"></i>Instructor</label>
+                                        <select class="form-select" id="instructor" th:field="*{instructor}">
+                                            <option th:each="user : ${users}" th:value="${user.id}"
+                                                    th:text="${user.username}"></option>
+                                        </select>
+                                        <div class="text-danger" th:if="${#fields.hasErrors('instructor')}"
+                                             th:errors="*{instructor}"></div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label for="price" class="form-label fw-bold">
+                                            <i class="bi bi-cash-coin me-1"></i>Price ($)</label>
+                                        <input type="number" class="form-control" id="price" th:field="*{price}" step="0.01">
+                                        <div class="text-danger" th:if="${#fields.hasErrors('price')}"
+                                             th:errors="*{price}"></div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="discount" class="form-label fw-bold">
+                                            <i class="bi bi-tags me-1"></i>Discount (%)</label>
+                                        <input type="number" class="form-control" id="discount" th:field="*{discount}"
+                                               step="0.01">
+                                        <div class="text-danger" th:if="${#fields.hasErrors('discount')}"
+                                             th:errors="*{discount}"></div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="durationInWeeks" class="form-label fw-bold">
+                                            <i class="bi bi-clock me-1"></i>Duration (weeks)</label>
+                                        <input type="number" class="form-control" id="durationInWeeks"
+                                               th:field="*{durationInWeeks}">
+                                        <div class="text-danger" th:if="${#fields.hasErrors('durationInWeeks')}"
+                                             th:errors="*{durationInWeeks}"></div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="language" class="form-label fw-bold">
+                                            <i class="bi bi-translate me-1"></i>Language</label>
+                                        <input type="text" class="form-control" id="language" th:field="*{language}" maxlength="30"
+                                               placeholder="Enter course language">
+                                        <div class="text-danger" th:if="${#fields.hasErrors('language')}"
+                                             th:errors="*{language}"></div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="level" class="form-label fw-bold">
+                                            <i class="bi bi-bar-chart me-1"></i>Level</label>
+                                        <select class="form-select" id="level" th:field="*{level}">
+                                            <option value="Beginner">Beginner</option>
+                                            <option value="Intermediate">Intermediate</option>
+                                            <option value="Advanced">Advanced</option>
+                                        </select>
+                                        <div class="text-danger" th:if="${#fields.hasErrors('level')}"
+                                             th:errors="*{level}"></div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold d-flex align-items-center">
+                                        <i class="bi bi-list-check me-2"></i> Prerequisites
+                                    </label>
+                                    <div class="card shadow-lg border-0 rounded-3">
+                                        <div class="card-body">
+                                            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                                                <!-- Search box -->
+                                                <div class="input-group" style="max-width: 400px;">
+                                                    <span class="input-group-text bg-light border-0">
+                                                        <i class="bi bi-search"></i>
+                                                    </span>
+                                                    <input type="text"
+                                                           class="form-control border-0 shadow-sm rounded-3"
+                                                           id="prerequisiteSearch"
+                                                           placeholder="Search prerequisites..."
+                                                           onkeyup="filterPrerequisites()">
+                                                </div>
+
+                                                <!-- Select All -->
+                                                <div class="form-check mb-0">
+                                                    <input class="form-check-input" type="checkbox" id="selectAllPrerequisites"
+                                                           onclick="toggleSelectAll('prerequisite')">
+                                                    <label class="form-check-label fw-bold" for="selectAllPrerequisites">
+                                                        Select All Prerequisites
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <!-- Scrollable Prerequisite List -->
+                                            <div class="border p-2 rounded bg-light"
+                                                 style="max-height: 200px; overflow-y: auto;">
+                                                <div id="prerequisiteList">
+                                                    <div th:each="courseItem, iterStat : ${allCourses}"
+                                                         class="prerequisite-item p-2 rounded-2 hover-effect">
+                                                        <input type="checkbox"
+                                                               th:id="'prerequisite_' + ${courseItem.id}"
+                                                               th:field="*{prerequisites}"
+                                                               th:value="${courseItem.id}"
+                                                               class="prerequisite-checkbox">
+                                                        <label th:for="'prerequisite_' + ${courseItem.id}" class="ms-2"
+                                                               th:text="${iterStat.index + 1 + '. ' + courseItem.code + ' - ' + courseItem.name}"></label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-check mb-3">
+                                    <input type="checkbox" class="form-check-input" id="published"
+                                           th:field="*{published}">
+                                    <label class="form-check-label fw-bold" for="published">
+                                        <i class="bi bi-eye me-1"></i>Published</label>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="ms-4 p-2 d-flex flex-column align-items-stretch gap-2"
+                 style="width: 200px; min-height: 250px; border: 1px dashed #ccc;">
+                <button type="button" class="btn btn-primary btn-sm w-100" onclick="submitCreateForm()">
+                    <i class="bi bi-save me-1"></i>Save
+                </button>
+                <a href="/courses" class="btn btn-secondary btn-sm w-100">
+                    <i class="bi bi-arrow-left me-1"></i>Back to List</a>
+            </div>
+        </div>
+    </div>
+    <script>
+        function submitCreateForm() {
+            document.getElementById('createForm').submit();
+        }
+
+        function toggleSelectAll(type) {
+            let selectAllCheckbox = document.getElementById(`selectAll${capitalizeFirstLetter(type)}s`);
+            let checkboxes = document.querySelectorAll(`.${type}-checkbox`);
+
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = selectAllCheckbox.checked;
+            });
+        }
+
+        function filterPrerequisites() {
+            let searchInput = document.getElementById('prerequisiteSearch').value.toLowerCase();
+            let prerequisiteItems = document.querySelectorAll('.prerequisite-item');
+
+            prerequisiteItems.forEach(item => {
+                let prerequisiteName = item.querySelector('label').textContent.toLowerCase();
+                item.style.display = prerequisiteName.includes(searchInput) ? "block" : "none";
+            });
+        }
+
+        function capitalizeFirstLetter(string) {
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        }
+
+        document.getElementById('imageFile').addEventListener('change', function(event) {
+            let preview = document.getElementById('previewImage');
+            let file = event.target.files[0];
+
+            if (file) {
+                let reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                    preview.style.width = '250px';
+                    preview.style.height = '150px';
+                    preview.style.objectFit = 'cover';
+                }
+                reader.readAsDataURL(file);
+            } else {
+                preview.style.display = 'none';
+            }
+        });
+    </script>
+</div>

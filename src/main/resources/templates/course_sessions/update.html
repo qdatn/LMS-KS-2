@@ -1,0 +1,149 @@
+<div class="px-5" th:fragment="content">
+    <div class="container mt-5">
+        <h1 class="text-left bg-primary text-white p-2">Update Session</h1>
+
+        <form th:action="@{/sessions/edit/{id}(id=${courseSession.id})}" method="post" th:object="${courseSession}">
+            <input type="hidden" name="_method" value="put"/>
+
+            <div class="mb-3">
+                <label for="name" class="form-label">Name:</label>
+                <input type="text" class="form-control" id="name" th:field="*{name}" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="course" class="form-label">Course</label>
+                <select class="form-select form-control" id="course" th:field="*{course}" required>
+                    <option value="" disabled selected>Select Course</option>
+                    <option th:each="course : ${courses}"
+                            th:value="${course.id}"
+                            th:text="${course.name}"
+                            th:selected="${course.id == courseSession.course.id}">
+                    </option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="sessionOrderNumber" class="form-label">Session Order Number:</label>
+                <input type="text" class="form-control" id="sessionOrderNumber" th:field="*{orderNumber}" required>
+            </div>
+
+            <div class="d-flex justify-content-end">
+                <button type="submit" class="btn btn-primary mx-3">Save</button>
+                <a href="/sessions" class="btn btn-secondary">Back to List</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!--<div class="px-5" th:fragment="content">-->
+<!--    <div class="container mt-5">-->
+<!--        <div class="alert alert-warning" role="alert">-->
+<!--            Note: You can't delete sessions that have materials.-->
+<!--        </div>-->
+
+<!--        <h2>Manage Sessions</h2>-->
+
+<!--        <form th:action="@{/sessions/update}" method="post">-->
+<!--            <div id="sessions-container">-->
+<!--                <input type="hidden" name="courseId" th:value="${course.id}" />-->
+<!--                <th:block th:each="courseSession, stat : ${courseSessions}">-->
+<!--                    <div class="input-group mb-3">-->
+<!--                        <input type="hidden" th:name="'courseSessions[' + ${stat.index} + '].id'" th:value="${courseSession.id}" />-->
+<!--                        <input type="text" class="form-control" th:name="'courseSessions[' + ${stat.index} + '].name'" th:value="${courseSession.name}" />-->
+<!--                        <div class="input-group-append">-->
+<!--                            <button class="btn btn-outline-danger remove-session" type="button">×</button>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </th:block>-->
+
+<!--                <div id="session-template" class="input-group mb-3" style="display: none;">-->
+<!--                    <input type="hidden" th:name="'courseSessions[' + ${courseSessions.size()} + '].id'" value="0" />-->
+<!--                    <input type="text" class="form-control" th:name="'courseSessions[' + ${courseSessions.size()} + '].name'" placeholder="New Session" />-->
+<!--                    <div class="input-group-append">-->
+<!--                        <button class="btn btn-outline-danger remove-session" type="button">×</button>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+
+<!--            <button id="add-session" type="button" class="btn btn-secondary">+</button>-->
+
+<!--            <div class="mt-3 d-flex justify-content-end">-->
+<!--                <button type="submit" class="btn btn-primary">Save</button>-->
+<!--                <a href="/courses" class="btn btn-secondary">Return to Course List</a>-->
+<!--            </div>-->
+<!--        </form>-->
+<!--    </div>-->
+
+<!--    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>-->
+<!--    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>-->
+<!--    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>-->
+
+<!--    <script th:inline="javascript">-->
+<!--        $(document).ready(function() {-->
+<!--            $('#add-session').click(function() {-->
+<!--                var newSession = $('#session-template').clone();-->
+<!--                newSession.removeAttr('id').show();-->
+<!--                $('#sessions-container').append(newSession);-->
+<!--            });-->
+
+<!--            $(document).on('click', '.remove-session', function() {-->
+<!--                $(this).closest('.input-group').remove();-->
+<!--            });-->
+<!--        });-->
+<!--    </script>-->
+<!--</div>-->
+
+
+<!--<div class="px-5" th:fragment="content">-->
+<!--    <div class="container mt-5">-->
+<!--        <div class="alert alert-warning" role="alert">-->
+<!--            Note: You can't delete sessions that have materials.-->
+<!--        </div>-->
+
+<!--        <h2>Manage Sessions</h2>-->
+
+<!--        <form th:action="@{/sessions/update}" method="post"> <div id="sessions-container">-->
+<!--            <input type="hidden" name="courseId" th:value="${course.id}" />-->
+<!--            <th:block th:each="courseSession, stat : ${courseSessions}">-->
+<!--                <div class="input-group mb-3">-->
+<!--                    <input type="hidden" th:name="'courseSessions[' + ${stat.index} + '].id'" th:value="${courseSession.id}" />-->
+<!--                    <input type="text" class="form-control" th:name="'courseSessions[' + ${stat.index} + '].name'" th:value="${courseSession.name}" />-->
+<!--                    <div class="input-group-append">-->
+<!--                        <button class="btn btn-outline-danger remove-session" type="button">×</button>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </th:block>-->
+<!--        </div>-->
+
+<!--            <button id="add-session" class="btn btn-secondary">+</button>-->
+
+<!--            <div class="mt-3 d-flex justify-content-end">-->
+<!--                <button type="submit" class="btn btn-primary">Save</button>-->
+<!--                <a href="/courses" class="btn btn-secondary">Return to Course List</a>-->
+<!--            </div>-->
+<!--        </form>-->
+<!--    </div>-->
+
+<!--    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>-->
+<!--    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>-->
+<!--    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>-->
+
+<!--    <script>-->
+<!--        $(document).ready(function() {-->
+<!--            $('#add-session').click(function() {-->
+<!--                $('#sessions-container').append(`-->
+<!--                    <div class="input-group mb-3">-->
+<!--                        <input type="text" class="form-control" placeholder="New Session">-->
+<!--                        <div class="input-group-append">-->
+<!--                            <button class="btn btn-outline-danger remove-session" type="button">×</button>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                `);-->
+<!--            });-->
+
+<!--            $(document).on('click', '.remove-session', function() {-->
+<!--                $(this).closest('.input-group').remove();-->
+<!--            });-->
+<!--        });-->
+<!--    </script>-->
+<!--</div>-->

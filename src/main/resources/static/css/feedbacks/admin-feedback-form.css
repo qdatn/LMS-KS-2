@@ -1,0 +1,52 @@
+.star-rating {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.star-rating i {
+    font-size: 1.5rem;
+    color: #d3d3d3;
+    cursor: pointer;
+    transition: color 0.3s ease, transform 0.2s ease;
+}
+
+.star-rating i:hover,
+.star-rating i.hover {
+    color: #ffd700;
+    transform: scale(1.2);
+}
+
+.star-rating i.selected {
+    color: #ffd700;
+    transform: scale(1.1);
+}
+
+.rating-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.form-control {
+    resize: vertical;
+    border-radius: 0.375rem;
+    padding: 0.5rem 1rem;
+}
+
+.form-label {
+    display: flex;
+    align-items: center;
+}
+
+#submitButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.form-control[list] {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23333' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 12px;
+}

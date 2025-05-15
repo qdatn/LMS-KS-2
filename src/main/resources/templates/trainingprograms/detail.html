@@ -1,0 +1,213 @@
+<div class="px-5 pb-5" th:fragment="content" xmlns:th="http://www.w3.org/1999/xhtml">
+    <div class="container-fluid mt-5">
+        <div class="d-flex">
+            <!-- Main Content -->
+            <div class="flex-grow-1">
+                <h1 class="fw-bold mb-4 d-flex align-items-center">
+                    <i class="bi bi-journal-text me-2 fs-3 text-primary"></i> Training Program Details
+                </h1>
+
+                <!-- Accordion -->
+                <div class="accordion" id="trainingAccordion">
+
+                    <!-- Program Info -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingInfo">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#collapseInfo">
+                                <i class="bi bi-info-circle me-2"></i> Program Info
+                            </button>
+                        </h2>
+                        <div id="collapseInfo" class="accordion-collapse collapse show"
+                             data-bs-parent="#trainingAccordion">
+                            <div class="accordion-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-bold"><i class="bi bi-bookmark me-1"></i> Program
+                                            Name</label>
+                                        <input type="text" class="form-control"
+                                               th:value="${trainingProgram.programName}" disabled>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-bold"><i class="bi bi-upc-scan me-1"></i> Program
+                                            Code</label>
+                                        <input type="text" class="form-control"
+                                               th:value="${trainingProgram.programCode}" disabled>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-bold"><i class="bi bi-card-text me-1"></i>
+                                            Description</label>
+                                        <textarea class="form-control" rows="5" th:text="${trainingProgram.description}"
+                                                  disabled></textarea>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label class="form-label fw-bold"><i class="bi bi-tools me-1"></i>
+                                            Version</label>
+                                        <input type="text" class="form-control" th:value="${trainingProgram.version}"
+                                               disabled>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label class="form-label fw-bold"><i class="bi bi-link me-1"></i> Content
+                                            Link</label>
+                                        <input type="url" class="form-control" th:value="${trainingProgram.contentLink}"
+                                               disabled>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Syllabus Table -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingSyllabus">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#collapseSyllabus">
+                                <i class="bi bi-journals me-2"></i> Syllabuses Table
+                            </button>
+                        </h2>
+                        <div id="collapseSyllabus" class="accordion-collapse collapse"
+                             data-bs-parent="#trainingAccordion">
+                            <div class="accordion-body">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-striped">
+                                        <thead class="table-light">
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Code</th>
+                                            <th>Approved</th>
+                                            <th>Min Mark</th>
+                                            <th>Active</th>
+                                            <th>Created Date</th>
+                                            <th>Action</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr th:if="${trainingProgram.syllabuses != null}"
+                                            th:each="syllabus : ${trainingProgram.syllabuses}">
+                                            <td th:text="${syllabus.name}">Syllabus Name</td>
+                                            <td th:text="${syllabus.syllabusCode}">SYL-001</td>
+                                            <td>
+                                                <span th:if="${syllabus.approved}" class="badge bg-success">Yes</span>
+                                                <span th:unless="${syllabus.approved}"
+                                                      class="badge bg-secondary">No</span>
+                                            </td>
+                                            <td th:text="${syllabus.minMark}">0.0</td>
+                                            <td>
+                                                <span th:if="${syllabus.active}" class="badge bg-primary"><i
+                                                        class="fas fa-check-circle"></i></span>
+                                                <span th:unless="${syllabus.active}" class="badge bg-dark"><i
+                                                        class="fas fa-times-circle"></i></span>
+                                            </td>
+                                            <td th:text="${#temporals.format(syllabus.createdDate, 'dd/MM/yyyy')}">N/A
+                                            </td>
+                                            <td class="text-center">
+                                                <a th:href="@{/syllabuses/detail/{id}(id=${syllabus.id})}"
+                                                   class="btn btn-outline-primary btn-sm" title="View Details">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pie Chart -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingChart">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#collapseChart">
+                                <i class="bi bi-pie-chart me-2"></i> Syllabus Distribution Chart
+                            </button>
+                        </h2>
+                        <div id="collapseChart" class="accordion-collapse collapse" data-bs-parent="#trainingAccordion">
+                            <div class="accordion-body">
+                                <div class="d-flex justify-content-center align-items-center flex-wrap">
+                                    <div style="width: 300px; height: 300px;">
+                                        <canvas id="syllabusPieChart"></canvas>
+                                    </div>
+                                    <div id="syllabusChartLegend" class="ms-4" style="min-width: 200px;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="ms-4 p-2 d-flex flex-column align-items-stretch gap-2"
+                 style="width: 200px; min-height: 250px; border: 1px dashed #ccc;">
+                <a href="/training-programs" class="btn btn-secondary btn-sm w-100">
+                    <i class="bi bi-arrow-left me-1"></i> Back to List
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Chart Logic -->
+    <script th:inline="javascript">
+    /*<![CDATA[*/
+    document.addEventListener('DOMContentLoaded', function () {
+        const canvas = document.getElementById('syllabusPieChart');
+        if (!canvas) {
+            console.error("Canvas element not found.");
+            return;
+        }
+
+        const syllabusesData = /*[[${simpleSyllabuses}]]*/ [];
+
+        console.log("Syllabuses loaded:", syllabusesData);
+
+        if (!syllabusesData || syllabusesData.length === 0) {
+            console.warn("No syllabus data to render chart.");
+            return;
+        }
+
+        const ctx = canvas.getContext('2d');
+
+        const chart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: syllabusesData.map(s => s.name || 'Unnamed'),
+                datasets: [{
+                    data: syllabusesData.map(() => 1),
+                    backgroundColor: [
+                        '#0d6efd', '#6f42c1', '#fd7e14', '#198754',
+                        '#dc3545', '#20c997', '#ffc107', '#6610f2'
+                    ],
+                    borderColor: '#fff',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                }
+            },
+            plugins: [{
+                id: 'customLegend',
+                afterUpdate(chart) {
+                    const legendContainer = document.getElementById('syllabusChartLegend');
+                    if (!legendContainer) return;
+                    legendContainer.innerHTML = chart.data.labels.map((label, i) => {
+                        const color = chart.data.datasets[0].backgroundColor[i % chart.data.datasets[0].backgroundColor.length];
+                        return `
+                            <div class="d-flex align-items-center mb-2">
+                                <div style="width: 12px; height: 12px; background-color: ${color}; margin-right: 8px;"></div>
+                                <span>${label}</span>
+                            </div>`;
+                    }).join('');
+                }
+            }]
+        });
+    });
+    /*]]>*/
+</script>
+</div>

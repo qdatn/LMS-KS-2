@@ -1,0 +1,161 @@
+<!--<div class="px-5" th:fragment="content">-->
+<!--    <div class="container mt-4">-->
+<!--        <h2 class="text-center">Sessions</h2>-->
+
+<!--        <div class="d-flex justify-content-between mb-3">-->
+<!--            <div class="input-group w-50">-->
+<!--                <form th:action="@{/sessions}" method="get" class="input-group">-->
+<!--                    <input type="text" class="form-control" name="searchTerm" placeholder="Search by session name">-->
+<!--                    <button type="submit" class="btn btn-outline-secondary">-->
+<!--                        <i class="fas fa-search"></i>-->
+<!--                    </button>-->
+<!--                </form>-->
+<!--                <button type="button" class="btn btn-light border align-self-center"-->
+<!--                        onclick="document.session.href='/sessions'">-->
+<!--                    <i class="fas fa-redo"></i>-->
+<!--                </button>-->
+<!--            </div>-->
+<!--            <div>-->
+<!--                <button class="btn btn-light border" onclick="window.print();"><i class="fas fa-print"></i> Print-->
+<!--                </button>-->
+<!--                <a th:href="@{/sessions/export}" class="btn btn-light border"><i class="fas fa-file-export"></i> Export</a>-->
+<!--                <form th:action="@{/sessions/import}" method="post" enctype="multipart/form-data"-->
+    <!--                      style="display: inline;">-->
+    <!--                    <input type="file" name="file" id="fileInput" style="display: none;" accept=".xlsx,.xls"-->
+    <!--                           onchange="this.form.submit()">-->
+    <!--                    <button type="button" class="btn btn-light border"-->
+    <!--                            onclick="document.getElementById('fileInput').click()">-->
+    <!--                        <i class="fas fa-file-import"></i> Import-->
+    <!--                    </button>-->
+    <!--                </form>-->
+<!--                <a href="/sessions/new" class="btn btn-primary"><i class="fas fa-plus"></i> Create New Session</a>-->
+<!--            </div>-->
+<!--        </div>-->
+
+<!--        <div th:if="${#lists.isEmpty(courseSessions.content)}" class="text-center">-->
+<!--            <i class="fas fa-exclamation-circle"></i> <span>No sessions available.</span>-->
+<!--        </div>-->
+<!--        <div th:unless="${#lists.isEmpty(courseSessions.content)}">-->
+<!--            <table class="table table-bordered">-->
+<!--                <thead>-->
+<!--                <tr>-->
+<!--                    <th>ID</th>-->
+<!--                    <th>Course</th>-->
+<!--                    <th>Name</th>-->
+<!--                    <th>Order Number</th>-->
+<!--                    <th>Actions</th>-->
+<!--                </tr>-->
+<!--                </thead>-->
+<!--                <tbody>-->
+<!--                <tr th:each="courseSession : ${courseSessions.content}">-->
+<!--                    <td th:text="${courseSession.id}"></td>-->
+<!--                    <td th:text="${courseSession.course.name}"></td>-->
+<!--                    <td th:text="${courseSession.name}"></td>-->
+<!--                    <td th:text="${courseSession.orderNumber}"></td>-->
+<!--                    <td>-->
+<!--                        <a th:href="@{/sessions/edit/{id}(id=${courseSession.id})}" class="btn btn-warning btn-sm"><i-->
+<!--                                class="fas fa-edit"></i></a>-->
+<!--                        <form th:action="@{/sessions/delete/{id}(id=${courseSession.id})}" method="post"-->
+<!--                              style="display:inline;">-->
+<!--                            <input type="hidden" name="_method" value="delete"/>-->
+<!--                            <button type="submit" class="btn btn-danger btn-sm"-->
+<!--                                    onclick="return confirm('Are you sure?');"><i class="fas fa-trash"></i></button>-->
+<!--                        </form>-->
+<!--                    </td>-->
+<!--                </tr>-->
+<!--                </tbody>-->
+<!--            </table>-->
+
+<!--            <div class="d-flex justify-content-end align-items-center">-->
+<!--                <a th:href="@{/sessions(page=${courseSessions.number - 1}, size=${courseSessions.size})}"-->
+<!--                   class="btn btn-outline-secondary me-3"-->
+<!--                   th:classappend="${courseSessions.number == 0 ? 'disabled' : ''}"-->
+<!--                   th:disabled="${courseSessions.number == 0}">Previous</a>-->
+
+<!--                <div class="me-2">-->
+<!--                    <span class="btn btn-outline-primary mx-1 active" th:text="${courseSessions.number + 1}"></span>-->
+<!--                </div>-->
+
+<!--                <a th:href="@{/sessions(page=${courseSessions.number + 1}, size=${courseSessions.size})}"-->
+<!--                   class="btn btn-outline-secondary ms-3"-->
+<!--                   th:classappend="${courseSessions.number + 1 >= courseSessions.totalPages ? 'disabled' : ''}"-->
+<!--                   th:disabled="${courseSessions.number + 1 >= courseSessions.totalPages}">Next</a>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</div>-->
+
+<div class="px-5" th:fragment="content">
+    <div class="container mt-5">
+        <h2>Session List for <span th:text="${course.name}"></span></h2>
+
+        <div class="d-flex justify-content-between mb-3">
+            <div>
+                <form th:action="@{/sessions/{courseId}/import(courseId=${course.id})}" method="post"
+                      enctype="multipart/form-data"
+                      style="display: inline;">
+                    <input type="file" name="file" id="fileInput" style="display: none;" accept=".xlsx,.xls"
+                           onchange="this.form.submit()">
+                    <button type="button" class="btn btn-light border"
+                            onclick="document.getElementById('fileInput').click()">
+                        <i class="fas fa-file-import"></i> Import
+                    </button>
+<!--                    <a th:href="@{/sessions/{courseId}/import(courseId=${course.id})}" class="btn btn-primary" onclick="document.getElementById('fileInput').click()">Import</a>-->
+                </form>
+                <a th:href="@{/sessions/{courseId}/import(courseId=${course.id})}" class="btn btn-primary">Import</a>
+                <a th:href="@{/sessions/{courseId}/export(courseId=${course.id})}" class="btn btn-primary">Export</a>
+                <a th:href="@{/sessions/{courseId}/new(courseId=${course.id})}" class="btn btn-primary">Add Number
+                    Section</a>
+            </div>
+        </div>
+
+        <table class="table">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>Section Name</th>
+                <th>Order Number</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="courseSession, stat : ${courseSessions}">
+                <td th:text="${stat.index + 1}"></td>
+                <td>
+                    <input type="text" class="form-control" th:value="${courseSession.name}"/>
+                </td>
+                <td>
+                    <input type="number" class="form-control" th:value="${courseSession.orderNumber}"/>
+                </td>
+                <td>
+
+                    <form th:action="@{/sessions/{courseId}/update/{id}(id=${courseSession.id}, courseId=${course.id})}"
+                          method="post"
+                          style="display:inline;">
+                        <!--                        <input type="hidden" name="_method" value="update"/>-->
+                        <button type="submit" class="btn btn-success">Save
+                        </button>
+                    </form>
+                    <form th:action="@{/sessions/{courseId}/delete/{id}(id=${courseSession.id}, courseId=${course.id})}"
+                          method="post"
+                          style="display:inline;">
+                        <input type="hidden" name="_method" value="delete"/>
+                        <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure?');">Remove
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script th:inline="javascript">
+        $(document).ready(function() {
+            // JavaScript code (nếu cần)
+        });
+    </script>
+</div>

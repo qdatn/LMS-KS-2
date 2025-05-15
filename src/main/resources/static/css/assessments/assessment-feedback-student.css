@@ -1,0 +1,71 @@
+/* styles.css */
+.star-rating {
+    display: flex;
+    flex-direction: row-reverse;
+    font-size: 1.5rem;
+    justify-content: flex-end;
+    padding: 0 0.2em;
+    text-align: center;
+}
+
+.star-rating input {
+    display: none;
+}
+
+.star-rating label {
+    color: #ccc;
+    cursor: pointer;
+    padding: 0 0.1em;
+    transition: color 0.2s;
+}
+
+.star-rating label:hover,
+.star-rating label:hover ~ label,
+.star-rating input:checked ~ label {
+    color: #ffb700;
+}
+
+.feedback-item {
+    transition: all 0.3s ease;
+    border-left: 4px solid #6c757d !important;
+}
+
+.feedback-item:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.feedback-item.admin-replied {
+    border-left: 4px solid #28a745 !important;
+}
+
+.admin-reply {
+    background-color: #f8f9fa;
+    border-left: 3px solid #28a745;
+    padding-left: 1rem;
+}
+
+.feedback-meta {
+    color: #6c757d;
+    font-size: 0.85rem;
+}
+
+.feedback-rating {
+    font-size: 1.1rem;
+}
+
+.feedback-rating .filled {
+    color: #ffb700;
+}
+
+.feedback-rating .empty {
+    color: #ccc;
+}
+
+.feedback-actions {
+    opacity: 0.4;
+    transition: opacity 0.2s;
+}
+
+.feedback-item:hover .feedback-actions {
+    opacity: 1;
+}

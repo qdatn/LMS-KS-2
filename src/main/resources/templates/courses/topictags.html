@@ -1,0 +1,466 @@
+<div class="px-5 pb-5" th:fragment="content">
+  <div class="container-fluid mt-5 mb-5">
+    <div class="d-flex">
+      <div class="flex-grow-1">
+        <div class="card shadow-lg border-0 rounded-3">
+          <div class="card-header bg-dark text-white py-3 d-flex align-items-center">
+            <i class="bi bi-tags me-2 fs-4"></i>
+            <h1 class="fw-bold mb-0 fs-4">Manage Topics & Tags for <span th:text="${course.name}"></span></h1>
+          </div>
+          <div class="card-body p-4 mb-4">
+
+            <div class="mb-4">
+              <h5 class="fw-bold mb-3"><i class="bi bi-search me-1"></i> Select a Topic</h5>
+              <form th:action="@{/courses/edit/topic-tags(courseId=${course.id})}" method="get" class="input-group">
+                <input type="hidden" name="courseId" th:value="${course.id}">
+                <input type="text" class="form-control" placeholder="Search topic..." name="searchTerm" th:value="${searchTerm}">
+                <button type="submit" class="btn btn-outline-secondary">
+                  <i class="bi bi-search"></i>
+                </button>
+              </form>
+            </div>
+
+            <div class="card p-3 shadow-sm border rounded mb-4" style="max-height: 300px; overflow-y: auto;">
+              <label for="topicSelect" class="form-label fw-semibold mb-2"><i class="bi bi-list-check me-1"></i> Choose a Topic</label>
+              <select class="form-select mb-3" id="topicSelect" size="5">
+                <option th:each="topic : ${allTopics}"
+                        th:value="${topic.topicId}"
+                        th:text="${topic.topicName}"
+                        th:class="${topic.topicId == selectedTopicId ? 'fw-bold text-primary' : ''}">
+                </option>
+              </select>
+
+              <div class="d-flex align-items-center">
+                <div>
+                  <span class="fw-semibold">Selected Topic:</span>
+                  <span id="selectedTopicName" class="fw-bold text-primary">-</span>
+                </div>
+                <button type="button" class="btn btn-success btn-sm ms-auto" id="addTopicBtn" disabled>
+                  <i class="bi bi-plus-circle me-1"></i> Add Topic
+                </button>
+              </div>
+            </div>
+
+            <form th:action="@{/courses/save-topics-tags}" method="post" th:object="${topicFormListWrapper}">
+              <input type="hidden" name="id" th:value="${course.id}">
+              <div id="addedTopicIdsContainer">
+              </div>
+              <h5 class="fw-bold mb-3"><i class="bi bi-check2-circle me-1"></i> Assigned Topics</h5>
+              <div class="row row-cols-1 row-cols-md-2 g-3" id="assignedTopicsList">
+                <div class="col" th:each="assignedTopic : ${course.topics}">
+                  <div class="list-group-item d-flex justify-content-between align-items-center border rounded">
+                    <div>
+                      <div class="fw-semibold" th:text="${assignedTopic.topicName}"></div>
+                      <ul class="list-inline mt-2" th:if="${not #lists.isEmpty(assignedTopic.tags)}">
+                        <li class="list-inline-item" th:each="tag : ${assignedTopic.tags}">
+                          <span class="badge bg-secondary" th:text="${tag.tagName}"></span>
+                        </li>
+                      </ul>
+                      <p class="text-muted mb-0" th:if="${#lists.isEmpty(assignedTopic.tags)}">No tags assigned to this topic.</p>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-secondary rounded-pill"
+                            th:attr="data-topic-id=${assignedTopic.topicId}"
+                            onclick="removeAssignedTopic(this)">
+                      X
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-end mt-4 gap-2">
+
+                <a th:href="@{/courses}" class="btn btn-outline-secondary shadow-sm rounded-pill">
+                  <i class="bi bi-arrow-left me-2"></i> Back to List
+                </a>
+              </div>
+            </form>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="ms-4 p-2 d-flex flex-column align-items-stretch gap-2"
+           style="width: 200px; min-height: 250px; border: 1px dashed #ccc;">
+
+        <button type="button" class="btn btn-primary btn-sm w-100" onclick="submitUpdateForm()">
+          <i class="bi bi-pencil-square me-1"></i> Update
+        </button>
+
+        <a href="/courses" class="btn btn-secondary btn-sm w-100">
+          <i class="bi bi-arrow-left me-1"></i> Back to List
+        </a>
+
+        <a href="#" class="btn btn-outline-secondary btn-sm w-100">Detail</a>
+
+        <a th:href="@{/courses/edit/sessions(courseId=${course.id})}"
+           class="btn btn-outline-secondary btn-sm w-100">
+          Session
+        </a>
+
+        <a th:href="@{/courses/edit/topic-tags(courseId=${course.id})}"
+           class="btn btn-outline-secondary btn-sm w-100">
+          Topic-Tags
+        </a>
+
+        <a th:href="@{/course-materials(courseId=${course.id})}" class="btn btn-outline-secondary btn-sm w-100">
+          Assign Materials
+        </a>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const topicSelect = document.getElementById('topicSelect');
+        const selectedTopicName = document.getElementById('selectedTopicName');
+        const addTopicBtn = document.getElementById('addTopicBtn');
+        const courseId = document.querySelector('input[name="id"]').value;
+
+        topicSelect.addEventListener('change', function () {
+            if (this.value) {
+                const selectedOption = this.options[this.selectedIndex];
+                selectedTopicName.textContent = selectedOption.textContent;
+                addTopicBtn.disabled = false;
+            } else {
+                selectedTopicName.textContent = '-';
+                addTopicBtn.disabled = true;
+            }
+        });
+
+        addTopicBtn.addEventListener('click', function () {
+            const selectedOption = topicSelect.options[topicSelect.selectedIndex];
+            const selectedTopicId = selectedOption.value;
+
+            fetch(`/courses/add-topic?courseId=${courseId}&topicId=${selectedTopicId}`, {
+                method: 'POST',
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Chuyển hướng về lại trang edit topic-tags để tải lại danh sách
+                    window.location.href = `/courses/edit/topic-tags?courseId=${courseId}`;
+                } else {
+                    console.error('Failed to add topic');
+                }
+            })
+            .catch(error => {
+                console.error('Error adding topic:', error);
+            });
+        });
+    });
+
+    function removeAssignedTopic(button) {
+    const topicIdToRemove = button.dataset.topicId;
+    const courseId = document.querySelector('input[name="id"]').value;
+
+    fetch(`/courses/remove-topic?courseId=${courseId}&topicId=${topicIdToRemove}`, {
+        method: 'POST',
+    })
+    .then(response => {
+        if (response.ok) {
+            window.location.reload();
+        } else {
+            console.error('Failed to remove topic');
+            alert('Failed to remove topic.');
+        }
+    })
+    .catch(error => {
+        console.error('Error removing topic:', error);
+        alert('Error removing topic.');
+    });
+}
+  </script>
+</div>
+
+
+
+
+
+
+
+
+
+
+<!--<div class="px-5 pb-5" th:fragment="content">-->
+<!--  <div class="container-fluid mt-5 mb-5">-->
+<!--    <div class="d-flex">-->
+<!--      <div class="flex-grow-1">-->
+<!--        <div class="card shadow-lg border-0 rounded-3">-->
+<!--          <div class="card-header bg-dark text-white py-3 d-flex align-items-center">-->
+<!--            <i class="bi bi-tags me-2 fs-4"></i>-->
+<!--            <h1 class="fw-bold mb-0 fs-4">Manage Topics & Tags <span th:text="${course.name}"></span></h1>-->
+<!--          </div>-->
+<!--          <div class="card-body p-4 mb-4">-->
+<!--            <div class="card-body p-4" style="max-height: 600px; overflow-y: auto;">-->
+<!--              <form th:action="@{/courses/save-topics-tags}" method="post" th:object="${topicFormListWrapper}">-->
+<!--                <input type="hidden" name="id" th:value="${course.id}">-->
+
+<!--                <div id="topics-container">-->
+<!--                  <div th:each="topicForm, iterStat : ${topicFormListWrapper.topics}"-->
+<!--                       class="topic-input mb-4 border p-3 rounded bg-light"-->
+<!--                       th:attr="data-topic-index=${iterStat.index}">-->
+<!--                    <h5 class="fw-bold">Topic #<span th:text="${iterStat.index + 1}"></span></h5>-->
+<!--                    <div class="mb-3">-->
+<!--                      <label class="form-label fw-bold">-->
+<!--                        <i class="bi bi-bookmark me-1"></i>Topic Name</label>-->
+<!--                      <input type="text" class="form-control"-->
+<!--                             th:field="*{topics[__${iterStat.index}__].topicName}" maxlength="200" required/>-->
+<!--                      <input type="hidden" th:field="*{topics[__${iterStat.index}__].index}"-->
+<!--                             th:value="${topicForm.index}"/>-->
+<!--                    </div>-->
+<!--                    <div class="mb-3">-->
+<!--                      <label class="form-label fw-bold">-->
+<!--                        <i class="bi bi-tag me-1"></i>Tags</label>-->
+<!--                      <div class="tags-input d-flex">-->
+<!--                        <input type="text" class="form-control tag-input-field me-2"-->
+<!--                               placeholder="Enter tag name" maxlength="200"/>-->
+<!--                        <button type="button"-->
+<!--                                class="btn btn-sm btn-outline-secondary add-tag-btn">-->
+<!--                          <i class="fas fa-plus"></i> Add Tag-->
+<!--                        </button>-->
+<!--                      </div>-->
+<!--                      <div class="added-tags mt-2">-->
+<!--                                                <span th:each="tag : ${topicForm.tags}"-->
+<!--                                                      class="badge bg-primary me-2 p-2 rounded-pill">-->
+<!--                                                    <span th:text="${tag}"></span>-->
+<!--                                                    <button type="button" class="btn-close ms-2" aria-label="Close"-->
+<!--                                                            onclick="removeTag(this)"></button>-->
+<!--                                                </span>-->
+<!--                      </div>-->
+<!--                      <div class="topic-tags-inputs">-->
+<!--                        <input th:each="tag : ${topicForm.tags}" type="hidden"-->
+<!--                               name="topics[__${iterStat.index}__].tags[]" th:value="${tag}"/>-->
+<!--                      </div>-->
+<!--                    </div>-->
+<!--                    <button type="button" class="btn btn-sm btn-danger remove-topic-btn mt-2 rounded-pill">-->
+<!--                      <i class="fas fa-trash"></i> Remove Topic-->
+<!--                    </button>-->
+<!--                  </div>-->
+<!--                </div>-->
+
+<!--                <button type="button" id="add-topic-btn" class="btn btn-success mb-3 rounded-pill">-->
+<!--                  <i class="fas fa-plus"></i> Add Another Topic-->
+<!--                </button>-->
+
+<!--                <div class="d-flex justify-content-end mt-4">-->
+<!--                  <button type="submit" class="btn btn-dark btn-lg rounded-pill">-->
+<!--                    <i class="bi bi-save me-2"></i> Save Topics & Tags-->
+<!--                  </button>-->
+<!--                  <a th:href="@{/courses}" class="btn btn-outline-secondary shadow-sm rounded-pill">-->
+<!--                    <i class="bi bi-arrow-left me-2"></i> Back to List-->
+<!--                  </a>-->
+<!--                </div>-->
+<!--              </form>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--      </div>-->
+<!--      <div class="ms-4 p-2 d-flex flex-column align-items-stretch gap-2"-->
+<!--           style="width: 200px; min-height: 250px; border: 1px dashed #ccc;">-->
+
+<!--        <button type="button" class="btn btn-primary btn-sm w-100" onclick="submitUpdateForm()">-->
+<!--          <i class="bi bi-pencil-square me-1"></i> Update-->
+<!--        </button>-->
+
+<!--        <a href="/courses" class="btn btn-secondary btn-sm w-100">-->
+<!--          <i class="bi bi-arrow-left me-1"></i> Back to List-->
+<!--        </a>-->
+
+<!--        <a href="#" class="btn btn-outline-secondary btn-sm w-100">Detail</a>-->
+
+<!--        <a th:href="@{/courses/edit/sessions(courseId=${course.id})}"-->
+<!--           class="btn btn-outline-secondary btn-sm w-100">-->
+<!--          Session-->
+<!--        </a>-->
+
+<!--        <a th:href="@{/courses/edit/topic-tags(courseId=${course.id})}"-->
+<!--           class="btn btn-outline-secondary btn-sm w-100">-->
+<!--          Topic-Tags-->
+<!--        </a>-->
+
+<!--        <a th:href="@{/course-materials(courseId=${course.id})}" class="btn btn-outline-secondary btn-sm w-100">-->
+<!--          Assign Materials-->
+<!--        </a>-->
+
+<!--      </div>-->
+<!--    </div>-->
+<!--  </div>-->
+
+<!--  <script th:inline="javascript">-->
+<!--    document.addEventListener('DOMContentLoaded', function () {-->
+<!--        const addTopicBtn = document.getElementById('add-topic-btn');-->
+<!--        const topicsContainer = document.getElementById('topics-container');-->
+<!--        let topicCount = topicsContainer.querySelectorAll('.topic-input').length;-->
+
+<!--        addTopicBtn.addEventListener('click', function () {-->
+<!--            const topics = document.querySelectorAll('.topic-input');-->
+<!--            const newIndex = topics.length; // Lấy số lượng topic hiện tại làm index mới-->
+<!--            topicCount++; // Vẫn tăng topicCount để hiển thị trên giao diện-->
+
+<!--            const newTopicInput = document.createElement('div');-->
+<!--            newTopicInput.classList.add('topic-input', 'mb-4', 'border', 'p-3', 'rounded', 'bg-light');-->
+<!--            newTopicInput.setAttribute('data-topic-index', newIndex); // Thêm index vào data attribute-->
+<!--            newTopicInput.innerHTML = `-->
+<!--                <h5 class="fw-bold">Topic #${topicCount}</h5>-->
+<!--                <div class="mb-3">-->
+<!--                    <label class="form-label fw-bold">-->
+<!--                        <i class="bi bi-bookmark me-1"></i>Topic Name</label>-->
+<!--                    <input type="text" class="form-control" name="topics[${newIndex}].topicName" maxlength="200" required/>-->
+<!--                    <input type="hidden" name="topics[${newIndex}].index" value="${newIndex}"/>-->
+<!--                </div>-->
+<!--                <div class="mb-3">-->
+<!--                    <label class="form-label fw-bold">-->
+<!--                        <i class="bi bi-tag me-1"></i>Tags</label>-->
+<!--                    <div class="tags-input d-flex">-->
+<!--                        <input type="text" class="form-control tag-input-field me-2"-->
+<!--                               placeholder="Enter tag name" maxlength="200"/>-->
+<!--                        <button type="button"-->
+<!--                                class="btn btn-sm btn-outline-secondary add-tag-btn rounded-pill">-->
+<!--                            <i class="fas fa-plus"></i> Add Tag-->
+<!--                        </button>-->
+<!--                    </div>-->
+<!--                    <div class="added-tags mt-2">-->
+<!--                    </div>-->
+<!--                    <div class="topic-tags-inputs">-->
+<!--                        </div>-->
+<!--                </div>-->
+<!--                <button type="button" class="btn btn-sm btn-danger remove-topic-btn mt-2 rounded-pill">-->
+<!--                    <i class="fas fa-trash"></i> Remove Topic-->
+<!--                </button>-->
+<!--            `;-->
+<!--            topicsContainer.appendChild(newTopicInput);-->
+<!--            attachTopicEventListeners(newTopicInput);-->
+<!--        });-->
+
+<!--        function attachTopicEventListeners(topicDiv) {-->
+<!--            const removeTopicBtn = topicDiv.querySelector('.remove-topic-btn');-->
+<!--            const addTagBtn = topicDiv.querySelector('.add-tag-btn');-->
+<!--            const addedTagsContainer = topicDiv.querySelector('.added-tags');-->
+<!--            const tagsInputField = topicDiv.querySelector('.tag-input-field');-->
+<!--            const tagsInputsContainer = topicDiv.querySelector('.topic-tags-inputs'); // Container cho các input hidden-->
+
+<!--            // Xử lý nút "Remove Topic"-->
+<!--            removeTopicBtn.addEventListener('click', function () {-->
+<!--                const topicIndex = topicDiv.dataset.topicIndex;-->
+<!--                console.log(`[Remove Topic] Clicked on Remove for topic index: ${topicIndex}`);-->
+<!--                console.log(`[Remove Topic] Before topicDiv.remove(), topicsContainer.children.length: ${topicsContainer.children.length}`);-->
+<!--                topicDiv.remove(); // Xóa topic khỏi giao diện-->
+<!--                console.log(`[Remove Topic] After topicDiv.remove(), topicsContainer.children.length: ${topicsContainer.children.length}`);-->
+<!--                console.log(`[Remove Topic] Calling updateTopicIndices()`);-->
+<!--                updateTopicIndices(); // Cập nhật lại index của các topic còn lại-->
+<!--                console.log(`[Remove Topic] Finished updateTopicIndices()`);-->
+<!--            });-->
+
+<!--            // Xử lý nút "Add Tag"-->
+<!--            addTagBtn.addEventListener('click', function () {-->
+<!--                const tagNameInput = tagsInputField.value.trim();-->
+<!--                if (tagNameInput) {-->
+<!--                    const addedTagsContainer = topicDiv.querySelector('.added-tags');-->
+<!--                    const tagsInputsContainer = topicDiv.querySelector('.topic-tags-inputs');-->
+<!--                    const existingTagBadges = Array.from(addedTagsContainer.querySelectorAll('.badge span'))-->
+<!--                        .map(span => span.textContent.trim());-->
+<!--                    const existingTagInputs = Array.from(tagsInputsContainer.querySelectorAll('input[type="hidden"]'))-->
+<!--                        .map(input => input.value.trim());-->
+
+<!--                    if (!existingTagBadges.includes(tagNameInput)) {-->
+<!--                        // Thêm tag vào giao diện-->
+<!--                        const newTagBadge = document.createElement('span');-->
+<!--                        newTagBadge.classList.add('badge', 'bg-primary', 'me-2', 'p-2', 'rounded-pill');-->
+<!--                        newTagBadge.textContent = tagNameInput;-->
+
+<!--                        const removeTagBtn = document.createElement('button');-->
+<!--                        removeTagBtn.classList.add('btn-close', 'ms-2');-->
+<!--                        removeTagBtn.setAttribute('aria-label', 'Close');-->
+<!--                        removeTagBtn.onclick = function () {-->
+<!--                            newTagBadge.remove();-->
+<!--                            updateHiddenTagsInput(topicDiv);-->
+<!--                        };-->
+
+<!--                        newTagBadge.appendChild(removeTagBtn);-->
+<!--                        addedTagsContainer.appendChild(newTagBadge);-->
+
+<!--                        // Thêm input hidden cho tag (chỉ nếu chưa tồn tại)-->
+<!--                        if (!existingTagInputs.includes(tagNameInput)) {-->
+<!--                            const newTagInput = document.createElement('input');-->
+<!--                            newTagInput.type = 'hidden';-->
+<!--                            newTagInput.name = `topics[${topicDiv.dataset.topicIndex}].tags[]`;-->
+<!--                            newTagInput.value = tagNameInput;-->
+<!--                            tagsInputsContainer.appendChild(newTagInput);-->
+<!--                        }-->
+
+<!--                        tagsInputField.value = '';-->
+<!--                    } else {-->
+<!--                        alert('Tag "' + tagNameInput + '" đã tồn tại cho topic này.');-->
+<!--                    }-->
+<!--                }-->
+<!--            });-->
+
+<!--            // Cập nhật các input hidden cho tags-->
+<!--            function updateHiddenTagsInput(topicDiv) {-->
+<!--                console.log("-&#45;&#45; updateHiddenTagsInput() called -&#45;&#45;");-->
+<!--                console.log(`-&#45;&#45; data-topic-index of current topicDiv: ${topicDiv.dataset.topicIndex} -&#45;&#45;`);-->
+<!--                const addedTags = topicDiv.querySelectorAll('.added-tags .badge');-->
+<!--                const tagsInputsContainer = topicDiv.querySelector('.topic-tags-inputs');-->
+<!--                console.log(`-&#45;&#45; Before clearing, number of tag inputs: ${tagsInputsContainer.children.length}`);-->
+<!--                tagsInputsContainer.innerHTML = ''; // Xóa tất cả các input hidden cũ-->
+<!--                console.log(`-&#45;&#45; After clearing, number of tag inputs: ${tagsInputsContainer.children.length}`);-->
+
+<!--                // Thêm lại các input hidden cho các tag còn lại (từ badge)-->
+<!--                addedTags.forEach(tag => {-->
+<!--                    const tagName = tag.textContent.trim();-->
+<!--                    const newTagInput = document.createElement('input');-->
+<!--                    newTagInput.type = 'hidden';-->
+<!--                    // SỬA LỖI: Thêm '[]' vào cuối name-->
+<!--                    newTagInput.name = `topics[${topicDiv.dataset.topicIndex}].tags[]`;-->
+<!--                    newTagInput.value = tagName;-->
+<!--                    tagsInputsContainer.appendChild(newTagInput);-->
+<!--                    console.log(`-&#45;&#45; Added tag input - name: ${newTagInput.name}, value: ${newTagInput.value}`);-->
+<!--                });-->
+<!--                console.log("-&#45;&#45; updateHiddenTagsInput() finished -&#45;&#45;");-->
+<!--            }-->
+<!--        }-->
+
+<!--        // Cập nhật lại index của các topic sau khi xóa-->
+<!--        function updateTopicIndices() {-->
+<!--            const topics = document.querySelectorAll('.topic-input');-->
+<!--            topics.forEach((topic, index) => {-->
+<!--                topic.setAttribute('data-topic-index', index);-->
+
+<!--                // Cập nhật name cho input topicName-->
+<!--                const topicNameInput = topic.querySelector('input[name^="topics["]');-->
+<!--                if (topicNameInput) {-->
+<!--                    topicNameInput.name = `topics[${index}].topicName`;-->
+<!--                }-->
+
+<!--                // Cập nhật name cho input index (hidden)-->
+<!--                const indexInput = topic.querySelector('input[name^="topics["][type="hidden"]:first-child');-->
+<!--                if (indexInput) {-->
+<!--                    indexInput.name = `topics[${index}].index`;-->
+<!--                    indexInput.value = index;-->
+<!--                }-->
+
+<!--                // Cập nhật name cho các input tags[]-->
+<!--                const tagsInputsContainer = topic.querySelector('.topic-tags-inputs');-->
+<!--                if (tagsInputsContainer) {-->
+<!--                    const tagsInputs = tagsInputsContainer.querySelectorAll('input[type="hidden"]');-->
+<!--                    tagsInputs.forEach(tagInput => {-->
+<!--                        tagInput.name = `topics[${index}].tags[]`;-->
+<!--                    });-->
+<!--                }-->
+<!--            });-->
+<!--        }-->
+
+<!--        // Xử lý xóa tag-->
+<!--        function removeTag(button) {-->
+<!--            const tagBadge = button.parentElement;-->
+<!--            const topicDiv = tagBadge.closest('.topic-input');-->
+<!--            tagBadge.remove();-->
+<!--            updateHiddenTagsInput(topicDiv);-->
+<!--        }-->
+
+<!--        // Gắn sự kiện cho các topic ban đầu-->
+<!--        const initialTopics = document.querySelectorAll('.topic-input');-->
+<!--        initialTopics.forEach(topicDiv => attachTopicEventListeners(topicDiv));-->
+<!--    });-->
+<!--  </script>-->
+<!--</div>-->

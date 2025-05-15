@@ -1,0 +1,44 @@
+.star-rating {
+    display: flex;
+    align-items: center;
+    gap: 5px; /* Consistent spacing between stars */
+}
+
+.star-rating i {
+    font-size: 1.25rem;
+    color: #d3d3d3; /* Light gray for unselected stars */
+    cursor: pointer;
+    transition: color 0.3s ease, transform 0.2s ease;
+}
+
+.star-rating i:hover,
+.star-rating i.hover {
+    color: #ffd700; /* Gold on hover */
+    transform: scale(1.2);
+}
+
+.star-rating i.selected {
+    color: #ffd700; /* Gold for selected stars */
+    transform: scale(1.1);
+}
+
+.rating-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.form-control {
+    resize: vertical;
+}
+
+.form-label {
+    display: flex;
+    align-items: center;
+}
+
+/* Style for disabled submit button */
+#submitButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}

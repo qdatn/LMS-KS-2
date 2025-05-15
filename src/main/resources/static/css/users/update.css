@@ -1,0 +1,19 @@
+/* Custom styles for role buttons */
+.role-selection .btn-check:checked + .btn .role-icon {
+    display: inline-block;
+}
+
+.role-selection .btn-check:not(:checked) + .btn .role-icon {
+    display: none;
+}
+
+.role-selection .btn {
+    min-width: 120px;
+    margin-bottom: 8px;
+    text-align: center;
+}
+
+.user-edit-scroll {
+    max-height: 80vh;
+    overflow-y: auto;
+}

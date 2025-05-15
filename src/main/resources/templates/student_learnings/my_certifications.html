@@ -1,0 +1,29 @@
+<div th:fragment="certifications">
+    <div class="container-fluid mt-3">
+        <h1 class="mb-4 fw-bold text-center">Your Earned Certifications</h1>
+        <div th:if="${#lists.isEmpty(certifications)}" class="text-center text-muted py-5">
+            <h4>No certifications earned yet.</h4>
+            <p>Complete courses to earn certifications and showcase your skills!</p>
+        </div>
+        <div th:if="${certifications != null && #lists.size(certifications) > 0}">
+            <div class="row mb-4">
+                <div class="col-lg-4 col-md-6 col-sm-12 mb-4" th:each="cert : ${certifications}">
+                    <div class="card h-100">
+                        <img th:src="${cert.image}" class="card-img-top w-100"
+                             style="height: 200px; object-fit: cover;" alt="Certification Image">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title" th:text="${cert.name}"></h5>
+                            <p class="card-text" th:text="${cert.description}"></p>
+                            <p class="card-text"><strong>Issued On:</strong> <span th:text="${#dates.format(cert.issueDate, 'dd MMM yyyy')}"></span></p>
+                            <a th:href="@{/student/certifications/{certId}(certId=${cert.id})}"
+                               class="btn btn-primary mt-auto">View Certificate</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="text-center mt-4">
+            <a th:href="@{/student/courses}" class="btn btn-outline-primary">Back to Courses</a>
+        </div>
+    </div>
+</div>

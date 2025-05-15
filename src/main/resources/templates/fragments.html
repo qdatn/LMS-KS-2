@@ -1,0 +1,39 @@
+            document.addEventListener("DOMContentLoaded", function () {
+                let currentPath = window.location.pathname; // Lấy URL hiện tại
+                let links = document.querySelectorAll(".link-module");
+                links.forEach(link => {
+                    let linkPath = new URL(link.href).pathname; // Lấy đường dẫn của link
+
+                    // Kiểm tra nếu linkPath trùng với currentPath thì active
+                    if (linkPath === currentPath) {
+                        link.classList.add("active");
+
+                        // Mở rộng nhóm chứa module này
+                        let parentUl = link.closest("ul.collapse");
+                        if (parentUl) {
+                            parentUl.classList.add("show");
+                        }
+                    }
+                });
+            });
+
+            //Hiện thông báo khi xử lý thông tin
+            function showNotification(message, type) {
+                Toastify({
+                    text: message,
+                    duration: 3000,
+                    close: true,
+                    gravity: "top",
+                    position: 'right',
+                    backgroundColor: type === 'success' ? "#4CAF50" : "#FF5252"
+                }).showToast();
+            }
+        </script>
+        <script th:src="@{/js/fontawesome-pro/all.min.js}"
+            integrity="sha384-vavvg0jDu5kfWqUXX2eF+u2HKTxWCnNiyved3SF9ee6UHEo6TKf+JHBkWYtLVJ17"
+            crossorigin="anonymous"></script>
+        <th:block th:replace="fragments/scripts :: menu-highlight-scripts"></th:block>
+    </div>
+</body>
+
+</html> 

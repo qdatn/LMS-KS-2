@@ -1,0 +1,195 @@
+<div class="px-3" th:fragment="content" xmlns:th="http://www.thymeleaf.org">
+    <div class="container-fluid py-3">
+        <!-- Page Header -->
+        <div class="row mb-3">
+            <div class="col-12">
+                <div class="bg-primary bg-gradient text-white p-3 rounded-3">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-id-card fa-lg me-2"></i>
+                            <h4 class="mb-0">Edit Student Card</h4>
+                        </div>
+                        <div>
+                            <span class="badge bg-light text-primary" id="internalID">ID: ?</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="row">
+            <!-- Left: Student Information -->
+            <div class="col-md-6 mb-3 mb-md-0">
+                <div class="h-100 p-3 bg-light rounded-3 overflow-auto" style="max-height: 68vh;">
+                    <h6 class="mb-3">
+                        <i class="fas fa-user text-primary me-2"></i>Student Information
+                    </h6>
+
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item bg-transparent px-0 py-2 d-flex justify-content-between">
+                            <span class="text-muted small">Student Code:</span>
+                            <span class="fw-medium" id="studentCode" th:text="${student.studentCode}">-</span>
+                        </div>
+
+                        <div class="list-group-item bg-transparent px-0 py-2 d-flex justify-content-between">
+                            <span class="text-muted small">First Name:</span>
+                            <span class="fw-medium" id="firstName" th:text="${student.firstName}">-</span>
+                        </div>
+
+                        <div class="list-group-item bg-transparent px-0 py-2 d-flex justify-content-between">
+                            <span class="text-muted small">Last Name:</span>
+                            <span class="fw-medium" id="lastName" th:text="${student.lastName}">-</span>
+                        </div>
+
+                        <div class="list-group-item bg-transparent px-0 py-2 d-flex justify-content-between">
+                            <span class="text-muted small">Full Name:</span>
+                            <span class="fw-medium" id="fullName"
+                                th:text="${student.firstName + ' ' + student.lastName}">-</span>
+                        </div>
+
+                        <div class="list-group-item bg-transparent px-0 py-2 d-flex justify-content-between">
+                            <span class="text-muted small">Phone Number:</span>
+                            <span class="fw-medium" id="phoneNumber" th:text="${student.phoneNumber}">-</span>
+                        </div>
+
+                        <div class="list-group-item bg-transparent px-0 py-2 d-flex justify-content-between">
+                            <span class="text-muted small">Address:</span>
+                            <span class="fw-medium" id="address" th:text="${student.address}">-</span>
+                        </div>
+                    </div>
+
+                    <h6 class="mb-3 mt-3">
+                        <i class="fas fa-id-card text-primary me-2"></i>Account Information
+                    </h6>
+
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item bg-transparent px-0 py-2 d-flex justify-content-between">
+                            <span class="text-muted small">Email:</span>
+                            <span class="fw-medium" id="email" th:text="${student.email}">-</span>
+                        </div>
+
+                        <div class="list-group-item bg-transparent px-0 py-2 d-flex justify-content-between">
+                            <span class="text-muted small">Username:</span>
+                            <span class="fw-medium" id="username" th:text="${student.username}">-</span>
+                        </div>
+                    </div>
+
+                    <h6 class="mb-3 mt-3">
+                        <i class="fas fa-shield-alt text-primary me-2"></i>Security Settings
+                    </h6>
+
+                    <div class="list-group list-group-flush">
+                        <div
+                            class="list-group-item bg-transparent px-0 py-2 d-flex justify-content-between align-items-center">
+                            <span class="text-muted small">Two Factor Authentication (2FA):</span>
+                            <div class="form-check form-switch d-flex align-items-center gap-2 mb-0">
+                                <input class="form-check-input" type="checkbox" disabled id="2faSwitch"
+                                    th:checked="${student.is2faEnabled}">
+                                <label class="form-check-label" id="is2faEnabled"
+                                    th:text="${student.is2faEnabled ? 'Enabled' : 'Disabled'}">-</label>
+                            </div>
+                        </div>
+
+                        <div
+                            class="list-group-item bg-transparent px-0 py-2 d-flex justify-content-between align-items-center">
+                            <span class="text-muted small">Account Status:</span>
+                            <div class="form-check form-switch d-flex align-items-center gap-2 mb-0">
+                                <input class="form-check-input" type="checkbox" disabled id="lockSwitch"
+                                    th:checked="${student.isLocked}">
+                                <label class="form-check-label" id="isLocked"
+                                    th:text="${student.isLocked ? 'Locked' : 'Active'}">-</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Edit Card Form -->
+            <div class="col-md-6">
+                <form id="editCardForm" class="h-100 p-3 bg-light rounded-3 d-flex flex-column">
+                    <h6 class="mb-3">
+                        <i class="fas fa-edit text-primary me-2"></i>Edit Student Card
+                    </h6>
+
+                    <input type="hidden" name="studentId" th:value="${student.id}" />
+
+                    <div class="mb-3">
+                        <label for="cardNumber" class="form-label small">Card Number</label>
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text"><i class="bi bi-credit-card"></i></span>
+                            <input type="text" class="form-control" id="cardNumber" name="cardNumber"
+                                th:value="${student.cardNumber}" placeholder="Enter card number" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="badgeTitle" class="form-label small">Badge Holder Title</label>
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text"><i class="bi bi-award"></i></span>
+                            <input type="text" class="form-control" id="badgeTitle" name="badgeTitle"
+                                th:value="${student.badgeHolderTitle}" placeholder="Enter badge title" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="issueDate" class="form-label small">Issue Date</label>
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text"><i class="bi bi-calendar-date"></i></span>
+                            <input type="date" class="form-control" id="issueDate" name="issueDate"
+                                th:value="${student.issuedAt}" required>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end mt-auto pt-3">
+                        <a th:href="@{/students}" class="btn btn-secondary btn-sm me-2">
+                            <i class="fas fa-arrow-left me-1"></i>Back To List
+                        </a>
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            <i class="fas fa-save me-1"></i>Update Card
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            // Khi submit form
+            $("#editCardForm").submit(function (event) {
+                event.preventDefault(); 
+
+                const urlParts = window.location.pathname.split('/');
+                const id = urlParts[urlParts.length - 1];
+                updateStudentCard(id);
+            });
+
+            function updateStudentCard(id) {
+                const cardData = {
+                    cardNumber: $("#cardNumber").val(),
+                    badgeHolderTitle: $("#badgeTitle").val(),
+                    issuedAt: $('#issueDate').val()
+                };
+
+                $.ajax({
+                    url: `/api/students/card/${id}`,
+                    type: "PUT",
+                    contentType: "application/json",
+                    data: JSON.stringify(cardData),
+                    success: function (response) {
+                        alert("Cập nhật thẻ thành công!");
+                        console.log(response);
+                        window.location.href = "/students"; 
+                    },
+                    error: function (xhr) {
+                        alert("Cập nhật thất bại: " + xhr.responseText);
+                    }
+                });
+            }
+        });
+    </script>
+</div>

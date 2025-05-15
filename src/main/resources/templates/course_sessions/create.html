@@ -1,0 +1,105 @@
+<div class="px-5" th:fragment="content" xmlns:th="http://www.w3.org/1999/xhtml">
+    <div class="container mt-5">
+        <div class="card shadow-lg border-0 rounded-4">
+            <!-- Header -->
+            <div class="card-header bg-primary text-white rounded-top-4 d-flex align-items-center">
+                <i class="bi bi-calendar-week me-2 fs-4"></i>
+                <h1 class="mb-0 fw-bold">Add New Sessions</h1>
+            </div>
+
+            <div class="card-body">
+                <!-- Error Message -->
+                <div th:if="${error}" class="alert alert-danger d-flex align-items-center" role="alert">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    <span th:text="${error}"></span>
+                </div>
+
+                <div class="input-group mb-3">
+                    <input type="number" id="session-count" class="form-control border-0 shadow-sm rounded-3 me-2"
+                           placeholder="Enter number of sessions" min="1">
+                    <button type="button" id="generate-sessions" class="btn btn-info">
+                        <i class="bi bi-arrow-clockwise"></i> Generate Sessions
+                    </button>
+                </div>
+
+                <form th:action="@{/courses/edit/sessions/add-multiple(courseId=${course.id})}" method="post">
+                    <div id="session-list">
+                        <!-- Template for new session row -->
+                        <div class="session-item mb-3 d-flex align-items-center">
+                            <input type="text" name="sessions[0].name"
+                                   class="form-control border-0 shadow-sm rounded-3 me-2"
+                                   placeholder="Enter session name" required>
+                            <input type="number" name="sessions[0].orderNumber"
+                                   class="form-control border-0 shadow-sm rounded-3 me-2"
+                                   placeholder="Order number" required>
+                            <button type="button" class="btn btn-danger remove-session">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="button" id="add-session" class="btn btn-success my-3">
+                        <i class="bi bi-plus-lg"></i> Add Session
+                    </button>
+
+                    <!-- Buttons -->
+                    <div class="d-flex justify-content-end mt-4">
+                        <button type="submit" class="btn btn-primary px-4 me-3 shadow-lg rounded-3">
+                            <i class="bi bi-save me-2"></i>Save All
+                        </button>
+                        <a th:href="@{/courses/edit/sessions(courseId=${course.id})}"
+                           class="btn btn-outline-secondary px-4 shadow-lg rounded-3">
+                            <i class="bi bi-arrow-left me-2"></i>Back to Course
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+    const sessionList = document.getElementById("session-list");
+    const addSessionBtn = document.getElementById("add-session");
+    const generateSessionsBtn = document.getElementById("generate-sessions");
+    const sessionCountInput = document.getElementById("session-count");
+
+    function addSession(index) {
+        const newSession = document.createElement("div");
+        newSession.classList.add("session-item", "mb-3", "d-flex", "align-items-center");
+        newSession.innerHTML = `
+            <input type="text" name="sessions[${index}].name" class="form-control border-0 shadow-sm rounded-3 me-2"
+                   placeholder="Enter session name" required>
+            <input type="number" name="sessions[${index}].orderNumber" class="form-control border-0 shadow-sm rounded-3 me-2"
+                   placeholder="Order number" required>
+            <button type="button" class="btn btn-danger remove-session">
+                <i class="bi bi-trash"></i>
+            </button>
+        `;
+        sessionList.appendChild(newSession);
+    }
+
+    addSessionBtn.addEventListener("click", function () {
+        const index = sessionList.children.length;
+        addSession(index);
+    });
+
+    generateSessionsBtn.addEventListener("click", function () {
+        const count = parseInt(sessionCountInput.value);
+        if (!isNaN(count) && count > 0) {
+            let currentCount = sessionList.children.length;
+            for (let i = 0; i < count; i++) {
+                addSession(currentCount + i);
+            }
+        }
+    });
+
+    sessionList.addEventListener("click", function (e) {
+        if (e.target.closest(".remove-session")) {
+            e.target.closest(".session-item").remove();
+        }
+    });
+});
+
+    </script>
+</div>
+

@@ -1,0 +1,300 @@
+<div class="px-5" th:fragment="content">
+    <div class="container mt-4">
+        <h2 class="text-center">Training Programs</h2>
+
+        <div class="card-body mb-3">
+            <div class="row align-items-center gy-3">
+                <!-- Search Form -->
+                <div class="col-md-6 d-flex">
+                    <form th:action="@{/training-programs}" method="get" class="input-group me-2">
+                        <input type="text" class="form-control" name="searchTerm" placeholder="Search by program name"
+                               aria-label="Program search">
+                        <button type="submit" class="btn btn-sm btn-outline-secondary" aria-label="Search"
+                                title="Search">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </form>
+                    <button type="button" class="btn btn-sm btn-outline-secondary"
+                            onclick="window.location.href='/training-programs'" title="Reload"
+                            aria-label="Reload programs">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="col-md-6 d-flex justify-content-end gap-2 flex-wrap">
+                    <!-- Print Button -->
+                    <button type="button" class="btn btn-outline-secondary" onclick="window.print();"
+                            title="Print Programs">
+                        <i class="bi bi-printer"></i>
+                    </button>
+
+                    <!-- Export Button -->
+                    <a th:href="@{/training-programs/export}" class="btn btn-outline-secondary" title="Export Programs">
+                        <i class="bi bi-file-earmark-excel"></i>
+                    </a>
+
+                    <!-- Import Button -->
+                    <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal"
+                            data-bs-target="#importModal" title="Import Programs">
+                        <i class="bi bi-upload"></i>
+                    </button>
+
+                    <!-- Create New Training Program Button -->
+                    <a href="/training-programs/new" class="btn btn-primary" title="Create New Training Program">
+                        <i class="bi bi-plus-circle"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Import Modal -->
+        <div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="importModalLabel">Import Training Programs from Excel</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Download the Excel template before uploading your file:</p>
+                        <a th:href="@{/training-programs/download-template}"
+                           class="text-primary text-decoration-underline">
+                            Download Training Program Template
+                        </a>
+                        <form th:action="@{/training-programs/import}" method="post" enctype="multipart/form-data"
+                              class="mt-3">
+                            <div class="mb-3">
+                                <label for="fileInput" class="form-label">Choose Excel File</label>
+                                <input type="file" name="file" id="fileInput" class="form-control" accept=".xlsx,.xls"
+                                       required>
+                            </div>
+                            <div class="d-flex justify-content-end">
+                                <button type="submit" class="btn btn-outline-success btn-sm">
+                                    <i class="bi bi-upload"></i> Import
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${trainingPrograms == null or trainingPrograms.content == null or #lists.isEmpty(trainingPrograms.content)}"
+             class="text-center">
+            <i class="fas fa-exclamation-circle"></i> <span>No training programs available.</span>
+        </div>
+        <div th:unless="${#lists.isEmpty(trainingPrograms.content)}">
+            <div class="card-body p-4" style="max-height: 450px; overflow-y: auto;">
+                <table class="table table-bordered">
+                    <thead>
+                    <tr>
+                        <th><input type="checkbox" id="selectAll"></th>
+                        <th>#</th>
+                        <th>Program Name</th>
+                        <th>Program Code</th>
+                        <th>Description</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="trainingProgram : ${trainingPrograms.content}">
+                        <td>
+                            <input type="checkbox" class="select-training-program" th:value="${trainingProgram.id}"/>
+                        </td>
+                        <td th:text="${trainingProgram.id}"></td>
+                        <td th:text="${trainingProgram.programName}"></td>
+                        <td th:text="${trainingProgram.programCode}"></td>
+                        <td th:text="${trainingProgram.description}"></td>
+                        <td>
+                            <a th:href="@{/training-programs/enrollment/{id}(id=${trainingProgram.id})}"
+                               class="btn btn-sm btn-outline-secondary" title="Enrollment">
+                                <i class="fas fa-user-plus"></i>
+                            </a>
+                            <a th:href="@{/training-programs/detail/{id}(id=${trainingProgram.id})}"
+                               class="btn btn-sm btn-outline-secondary" title="View Details">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a th:href="@{/training-programs/edit/{id}(id=${trainingProgram.id})}"
+                               class="btn btn-sm btn-outline-secondary" title="Edit" aria-label="Edit">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <form th:action="@{/training-programs/delete/{id}(id=${trainingProgram.id})}"
+                                  method="post" class="delete-form d-inline">
+                                <input type="hidden" name="_method" value="delete"/>
+                                <button type="submit" class="btn btn-sm btn-outline-secondary delete-btn" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+
+            <div class="mt-4 mb-3 d-flex justify-content-between align-items-center flex-wrap">
+                <!-- Delete Selected and Total Records -->
+                <div class="d-flex align-items-center gap-3">
+                    <button type="button" id="deleteSelectedBtn" class="btn btn-danger d-flex align-items-center"
+                            disabled>
+                        <i class="fas fa-trash-alt me-2"></i> Delete Selected (<span id="selectedCount">0</span>)
+                    </button>
+                    <span class="fw-bold">Total Records: <span
+                            th:text="${trainingPrograms.totalElements}">0</span></span>
+                </div>
+                <!-- Phân trang -->
+                <nav aria-label="Training Program pagination">
+                    <ul class="pagination mb-0">
+                        <li class="page-item" th:classappend="${trainingPrograms.first} ? 'disabled'">
+                            <a class="page-link"
+                               th:href="@{/training-programs(page=0, size=${trainingPrograms.size})}"
+                               aria-label="First">
+                                <i class="bi bi-chevron-double-left"></i>
+                            </a>
+                        </li>
+                        <li class="page-item" th:classappend="${trainingPrograms.first} ? 'disabled'">
+                            <a class="page-link"
+                               th:href="@{/training-programs(page=${trainingPrograms.number - 1}, size=${trainingPrograms.size})}"
+                               aria-label="Previous">
+                                <i class="bi bi-chevron-left"></i>
+                            </a>
+                        </li>
+
+                        <li class="page-item" th:classappend="${trainingPrograms.number == 0} ? 'active'">
+                            <a class="page-link"
+                               th:href="@{/training-programs(page=0, size=${trainingPrograms.size})}">1</a>
+                        </li>
+                        <li class="page-item disabled" th:if="${trainingPrograms.number > 2}">
+                            <span class="page-link">...</span>
+                        </li>
+
+                        <th:block
+                                th:each="i : ${#numbers.sequence(trainingPrograms.number - 1, trainingPrograms.number + 1)}"
+                                th:if="${i > 0 and i < trainingPrograms.totalPages - 1}">
+                            <li class="page-item" th:classappend="${trainingPrograms.number == i} ? 'active'">
+                                <a class="page-link"
+                                   th:href="@{/training-programs(page=${i}, size=${trainingPrograms.size})}"
+                                   th:text="${i + 1}"></a>
+                            </li>
+                        </th:block>
+
+                        <li class="page-item disabled"
+                            th:if="${trainingPrograms.number < trainingPrograms.totalPages - 3}">
+                            <span class="page-link">...</span>
+                        </li>
+                        <li class="page-item"
+                            th:classappend="${trainingPrograms.number == trainingPrograms.totalPages - 1} ? 'active'"
+                            th:if="${trainingPrograms.totalPages > 1}">
+                            <a class="page-link"
+                               th:href="@{/training-programs(page=${trainingPrograms.totalPages - 1}, size=${trainingPrograms.size})}"
+                               th:text="${trainingPrograms.totalPages}"></a>
+                        </li>
+
+                        <li class="page-item" th:classappend="${trainingPrograms.last} ? 'disabled'">
+                            <a class="page-link"
+                               th:href="@{/training-programs(page=${trainingPrograms.number + 1}, size=${trainingPrograms.size})}"
+                               aria-label="Next">
+                                <i class="bi bi-chevron-right"></i>
+                            </a>
+                        </li>
+                        <li class="page-item" th:classappend="${trainingPrograms.last} ? 'disabled'">
+                            <a class="page-link"
+                               th:href="@{/training-programs(page=${trainingPrograms.totalPages - 1}, size=${trainingPrograms.size})}"
+                               aria-label="Last">
+                                <i class="bi bi-chevron-double-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".delete-btn").forEach(button => {
+        button.addEventListener("click", function (event) {
+            event.preventDefault(); // Ngăn chặn gửi form ngay lập tức
+
+            const form = this.closest("form");
+
+            Swal.fire({
+                title: "Are you sure?",
+                text: "This action cannot be undone!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#3085d6",
+                confirmButtonText: "Yes, delete it!"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit(); // Gửi form sau khi xác nhận
+                }
+            });
+        });
+    });
+});
+    document.addEventListener("DOMContentLoaded", function () {
+        const selectAll = document.getElementById("selectAll");
+        const checkboxes = document.querySelectorAll(".select-training-program");
+        const deleteBtn = document.getElementById("deleteSelectedBtn");
+        const selectedCountSpan = document.getElementById("selectedCount");
+
+        function updateSelectedCount() {
+            const selected = document.querySelectorAll(".select-training-program:checked");
+            selectedCountSpan.textContent = selected.length;
+            deleteBtn.disabled = selected.length === 0;
+
+            // Cập nhật trạng thái của selectAll
+            selectAll.checked = selected.length === checkboxes.length;
+        }
+
+        // Bắt sự kiện khi chọn/deselect tất cả
+        selectAll.addEventListener("change", function () {
+            checkboxes.forEach(checkbox => checkbox.checked = selectAll.checked);
+            updateSelectedCount();
+        });
+
+        // Bắt sự kiện khi từng checkbox thay đổi
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener("change", updateSelectedCount);
+        });
+
+        // Xử lý sự kiện khi nhấn nút xóa
+        deleteBtn.addEventListener("click", function () {
+            const selectedIds = Array.from(document.querySelectorAll(".select-training-program:checked"))
+                                     .map(cb => cb.value);
+
+            if (selectedIds.length === 0) return;
+
+            Swal.fire({
+                title: "Are you sure?",
+                text: `You are about to delete ${selectedIds.length} training program(s).`,
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#3085d6",
+                confirmButtonText: "Yes, delete them!"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch('/training-programs/delete-selected', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ ids: selectedIds })
+                    }).then(response => {
+                        if (response.ok) {
+                            location.reload();
+                        } else {
+                            Swal.fire("Error", "Failed to delete training programs", "error");
+                        }
+                    });
+                }
+            });
+        });
+    });
+
+
+    </script>
+
+</div>

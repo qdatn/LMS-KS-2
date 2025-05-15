@@ -1,0 +1,398 @@
+<div class="px-5" th:fragment="content" xmlns:th="http://www.w3.org/1999/xhtml">
+    <div class="container-fluid mt-4">
+        <h1 class="text-center">Courses</h1>
+
+        <div class="card-body mb-3">
+            <div class="row align-items-center gy-3">
+
+                <!-- Search Form -->
+                <div class="col-md-6 d-flex">
+                    <form th:action="@{/courses}" method="get" class="input-group me-2">
+                        <input type="text" class="form-control" name="searchTerm" th:value="${searchTerm}"
+                               placeholder="Search by course name" aria-label="Course search">
+                        <button type="submit" class="btn btn-sm btn-outline-secondary" aria-label="Search"
+                                title="Search">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </form>
+                    <button type="button" class="btn btn-sm btn-outline-secondary"
+                            onclick="window.location.href='/courses'"
+                            title="Reload" aria-label="Reload courses">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="col-md-6 d-flex justify-content-end gap-2 flex-wrap">
+                    <!-- Import Button -->
+                    <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal"
+                            data-bs-target="#importModal" title="Import Courses">
+                        <i class="bi bi-upload"></i>
+                    </button>
+
+<!--                    <button type="button" class="btn btn-outline-secondary" title="Import Courses with Sessions"-->
+<!--                            data-bs-toggle="modal" data-bs-target="#importCourseSessionsModal">-->
+<!--                        <i class="fa-solid fa-cloud-arrow-up"></i>-->
+<!--                    </button>-->
+
+                    <button type="button" class="btn btn-outline-secondary" title="Import Courses with Sessions"
+                            data-bs-toggle="modal" data-bs-target="#importCourseSessionsModal">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                    </button>
+<!--                    <div th:if="${message}" class="alert alert-info">-->
+<!--                        <p th:text="${message}"></p>-->
+<!--                    </div>-->
+
+                    <!-- Export Button -->
+                    <a th:href="@{/courses/export}" class="btn btn-outline-secondary" title="Export Courses">
+                        <i class="bi bi-file-earmark-excel"></i>
+                    </a>
+
+                    <!-- Print Button -->
+                    <button type="button" class="btn btn-outline-secondary" onclick="window.print();"
+                            title="Print Courses">
+                        <i class="bi bi-printer"></i>
+                    </button>
+
+                    <!-- Create Course Button -->
+                    <a href="/courses/new" class="btn btn-primary" title="Create New Course">
+                        <i class="bi bi-plus-circle"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Import Modal -->
+        <div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="importModalLabel">Import Courses from Excel</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Download the Excel template before uploading your file:</p>
+                        <a th:href="@{/courses/download-template}" class="text-primary text-decoration-underline">
+                            Download Course Template
+                        </a>
+                        <form th:action="@{/courses/import}" method="post" enctype="multipart/form-data" class="mt-3">
+                            <div class="mb-3">
+                                <label for="fileInput" class="form-label">Choose Excel File</label>
+                                <input type="file" name="file" id="fileInput" class="form-control" accept=".xlsx,.xls"
+                                       required>
+                            </div>
+                            <div class="d-flex justify-content-end">
+                                <button type="submit" class="btn btn-outline-success btn-sm">
+                                    <i class="bi bi-upload"></i> Import
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="importCourseSessionsModal" tabindex="-1" aria-labelledby="importSessionsModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="importSessionsModalLabel">Import Courses, Sessions, and Materials from Excel</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Download the Excel template for Courses, Sessions, and Materials before uploading your file:</p>
+                        <a th:href="@{/courses/download-template-all}" class="text-primary text-decoration-underline">
+                            Download Template (Courses, Sessions, Materials)
+                        </a>
+                        <form th:action="@{/courses/import-course-data}" method="post" enctype="multipart/form-data" class="mt-3">
+                            <div class="mb-3">
+                                <label for="sessionsFileInput" class="form-label">Choose Excel File</label>
+                                <input type="file" name="file" id="sessionsFileInput" class="form-control" accept=".xlsx,.xls" required>
+                            </div>
+                            <div class="d-flex justify-content-end">
+                                <button type="submit" class="btn btn-outline-success btn-sm">
+                                    <i class="bi bi-upload"></i> Import All
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${#lists.isEmpty(courses.content)}" class="text-center">
+            <i class="fas fa-exclamation-circle"></i> <span>No courses available.</span>
+        </div>
+        <div class="card-body p-4" style="max-height: 60vh; overflow-y: auto;">
+            <div th:unless="${#lists.isEmpty(courses.content)}">
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-3">
+                    <div class="col d-flex align-items-stretch" th:each="course : ${courses.content}">
+                        <div class="card h-100 shadow-lg border-0 rounded-3 d-flex flex-column"
+                             style="min-height: 340px; width: 100%;">
+
+                            <!-- Ảnh khóa học -->
+                            <div class="bg-light rounded-top overflow-hidden" style="height: 150px;">
+                                <img th:src="${course.image}" alt="Course Image"
+                                     class="w-100 h-100" style="object-fit: cover;">
+                            </div>
+
+                            <!-- Nội dung -->
+                            <div class="card-body d-flex flex-column">
+                                <!-- Mã khóa học -->
+                                <span class="badge bg-light text-muted fw-semibold mb-1" th:text="${course.code}"
+                                      style="font-size: 12px;"></span>
+
+                                <!-- Tên khóa học -->
+                                <h6 class="fw-bold mb-2 text-truncate" th:text="${course.name}"
+                                    style="font-size: 16px;"></h6>
+
+                                <!-- Giá -->
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <del class="text-muted small"
+                                         th:text="'$' + ${#numbers.formatDecimal(course.price, 1, 'COMMA', course.price % 1 == 0 ? 0 : 2, 'POINT')}">
+                                    </del>
+                                    <span class="text-primary fw-bold"
+                                          th:text="'$' + ${#numbers.formatDecimal(course.price * (1 - course.discount / 100), 1, 'COMMA',
+                        (course.price * (1 - course.discount / 100)) % 1 == 0 ? 0 : 2, 'POINT')}"></span>
+                                </div>
+
+                                <!-- Giảng viên -->
+                                <p class="text-muted small mb-2">
+                                    <i class="bi bi-person me-1"></i>
+                                    <span th:text="${course.instructor != null ? course.instructor.username : 'N/A'}"></span>
+                                </p>
+
+                                <!-- Spacer để đẩy phần footer xuống -->
+                                <div class="mt-auto pt-2 border-top">
+                                    <div class="d-flex justify-content-between align-items-center flex-wrap">
+                                        <!-- Trạng thái -->
+                                        <span th:data-id="${course.id}" th:data-status="${course.published}"
+                                              th:classappend="${course.published} ? 'bg-success' : 'bg-secondary'"
+                                              class="badge toggle-status d-inline-flex align-items-center gap-1 text-white mb-2"
+                                              style="font-size: 12px; cursor: pointer;">
+                        <i class="bi" th:classappend="${course.published} ? 'bi-eye' : 'bi-eye-slash'"></i>
+                        <span th:text="${course.published ? 'Published' : 'Unpublished'}"></span>
+                    </span>
+
+                                        <!-- Nút -->
+                                        <div class="d-flex align-items-center gap-1">
+                                            <input type="checkbox" class="form-check-input select-course mt-0"
+                                                   th:value="${course.id}" title="Select course"/>
+                                            <a th:href="@{/courses/edit/{id}(id=${course.id})}"
+                                               class="btn btn-sm btn-outline-secondary" title="Edit">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <form th:action="@{/courses/delete/{id}(id=${course.id})}" method="post"
+                                                  class="delete-form d-inline">
+                                                <input type="hidden" name="_method" value="delete"/>
+                                                <button type="button"
+                                                        class="btn btn-sm btn-outline-secondary delete-btn"
+                                                        title="Delete">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4 mb-3 d-flex justify-content-between align-items-center flex-wrap">
+            <!-- Delete Selected and Total Records -->
+            <div class="d-flex align-items-center gap-3">
+                <button type="button" id="deleteSelectedBtn" class="btn btn-danger d-flex align-items-center" disabled>
+                    <i class="fas fa-trash-alt me-2"></i> Delete Selected (<span id="selectedCount">0</span>)
+                </button>
+                <span class="fw-bold">Total Records: <span th:text="${courses.totalElements}">0</span></span>
+            </div>
+            <!-- Phân trang -->
+            <nav aria-label="Course pagination">
+                <ul class="pagination mb-0">
+                    <li class="page-item" th:classappend="${courses.first} ? 'disabled'">
+                        <a class="page-link"
+                           th:href="@{/courses(page=0, size=${courses.size}, searchTerm=${searchTerm})}"
+                           aria-label="First">
+                            <i class="bi bi-chevron-double-left"></i>
+                        </a>
+                    </li>
+                    <li class="page-item" th:classappend="${courses.first} ? 'disabled'">
+                        <a class="page-link"
+                           th:href="@{/courses(page=${courses.number - 1}, size=${courses.size}, searchTerm=${searchTerm})}"
+                           aria-label="Previous">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+                    <li class="page-item" th:classappend="${courses.number == 0} ? 'active'">
+                        <a class="page-link"
+                           th:href="@{/courses(page=0, size=${courses.size}, searchTerm=${searchTerm})}">1</a>
+                    </li>
+                    <li class="page-item disabled" th:if="${courses.number > 2}">
+                        <span class="page-link">...</span>
+                    </li>
+                    <th:block th:each="i : ${#numbers.sequence(courses.number - 1, courses.number + 1)}"
+                              th:if="${i > 0 and i < courses.totalPages - 1}">
+                        <li class="page-item" th:classappend="${courses.number == i} ? 'active'">
+                            <a class="page-link"
+                               th:href="@{/courses(page=${i}, size=${courses.size}, searchTerm=${searchTerm})}"
+                               th:text="${i + 1}"></a>
+                        </li>
+                    </th:block>
+                    <li class="page-item disabled" th:if="${courses.number < courses.totalPages - 3}">
+                        <span class="page-link">...</span>
+                    </li>
+                    <li class="page-item" th:classappend="${courses.number == courses.totalPages - 1} ? 'active'"
+                        th:if="${courses.totalPages > 1}">
+                        <a class="page-link"
+                           th:href="@{/courses(page=${courses.totalPages - 1}, size=${courses.size}, searchTerm=${searchTerm})}"
+                           th:text="${courses.totalPages}"></a>
+                    </li>
+                    <li class="page-item" th:classappend="${courses.last} ? 'disabled'">
+                        <a class="page-link"
+                           th:href="@{/courses(page=${courses.number + 1}, size=${courses.size}, searchTerm=${searchTerm})}"
+                           aria-label="Next">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                    <li class="page-item" th:classappend="${courses.last} ? 'disabled'">
+                        <a class="page-link"
+                           th:href="@{/courses(page=${courses.totalPages - 1}, size=${courses.size}, searchTerm=${searchTerm})}"
+                           aria-label="Last">
+                            <i class="bi bi-chevron-double-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.body.addEventListener("click", async function (event) {
+            const badge = event.target.closest(".toggle-status");
+            if (!badge) return;
+
+            const courseId = badge.getAttribute("data-id");
+            if (!courseId) return;
+
+            const currentStatus = badge.getAttribute("data-status") === "true";
+            const newStatus = !currentStatus;
+            const actionText = newStatus ? "Publish" : "Unpublish";
+
+            const confirmation = await Swal.fire({
+                title: "Are you sure?",
+                text: `Do you want to ${actionText} this course?`,
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#28a745",
+                cancelButtonColor: "#d33",
+                confirmButtonText: `Yes, ${actionText} it!`,
+            });
+
+            if (!confirmation.isConfirmed) return;
+
+            try {
+                badge.classList.add("disabled");
+                const response = await fetch(`/courses/${courseId}/toggle-status`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                });
+
+                if (!response.ok) throw new Error("Failed to update course status");
+
+                const data = await response.json();
+
+                badge.setAttribute("data-status", data.published);
+                badge.classList.toggle("bg-success", data.published);
+                badge.classList.toggle("bg-secondary", !data.published);
+                badge.innerHTML = `
+    <i class="bi ${data.published ? "bi-eye" : "bi-eye-slash"}"></i>
+    <span>${data.published ? "Published" : "Unpublished"}</span>
+`;
+                badge.setAttribute("aria-label", data.published ? "Published course" : "Unpublished course");
+
+                Swal.fire("Updated!", "Course status has been updated.", "success");
+            } catch (error) {
+                Swal.fire("Error!", error.message || "Something went wrong.", "error");
+            } finally {
+                badge.classList.remove("disabled");
+            }
+        });
+    });
+
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".delete-btn").forEach(button => {
+        button.addEventListener("click", function () {
+            let form = this.closest(".delete-form");
+
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#3085d6",
+                confirmButtonText: "Yes, delete it!"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit(); // Gửi form DELETE
+                }
+            });
+        });
+    });
+});
+
+    document.addEventListener("DOMContentLoaded", function () {
+    const checkboxes = document.querySelectorAll(".select-course");
+    const deleteBtn = document.getElementById("deleteSelectedBtn");
+    const selectedCountSpan = document.getElementById("selectedCount");
+
+    function updateSelectedCount() {
+        const selected = document.querySelectorAll(".select-course:checked");
+        selectedCountSpan.textContent = selected.length;
+        deleteBtn.disabled = selected.length === 0;
+    }
+
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener("change", updateSelectedCount);
+    });
+
+    deleteBtn.addEventListener("click", function () {
+        const selectedIds = Array.from(document.querySelectorAll(".select-course:checked"))
+                                  .map(cb => parseInt(cb.value, 10)); // Đảm bảo rằng id là kiểu số (Long)
+
+        if (selectedIds.length === 0) return;
+
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You are about to delete " + selectedIds.length + " course(s).",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Yes, delete them!"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch('/courses/delete-selected', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ids: selectedIds }) // Đảm bảo gửi id dưới dạng số
+                }).then(response => {
+                    if (response.ok) {
+                        location.reload();
+                    } else {
+                        Swal.fire("Error", "Failed to delete courses", "error");
+                    }
+                });
+            }
+        });
+    });
+});
+
+    </script>
+
+</div>

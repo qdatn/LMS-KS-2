@@ -1,0 +1,438 @@
+<div th:fragment="content" style="overflow: hidden;">
+    <div class="container-fluid">
+
+        <div class="row">
+
+            <!-- Main Content -->
+            <main role="main" class="col-md-8 ml-sm-auto col-lg-9 px-md-5">
+                <div class="d-flex justify-content-between align-items-center py-4 border-bottom">
+                    <h1 class="h3 text-dark mb-0" th:text="'Learning: ' + ${course.name}"></h1>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <form id="markCompleteForm"
+                              th:action="@{/student/courses/{courseId}/learn/progress/update(courseId=${courseId})}"
+                              method="post">
+                            <input type="hidden" name="sessionId" th:value="${currentSession?.id}"/>
+                            <input type="hidden" name="materialId" id="materialIdInput"/>
+                            <button type="submit" class="btn btn-success d-flex align-items-center gap-2">
+                                <i class="fas fa-check-circle"></i> Mark as Complete
+                            </button>
+                        </form>
+                        <a th:if="${nextSessionId != null}"
+                           th:href="@{/student/courses/{courseId}/learn(courseId=${courseId}, sessionId=${nextSessionId})}"
+                           class="btn btn-primary d-flex align-items-center gap-2">
+                            Next Item <i class="fas fa-arrow-right"></i>
+                        </a>
+                        <a th:href="@{/student/courses}" class="btn btn-outline-secondary d-flex align-items-center gap-2">
+                            <i class="fas fa-arrow-left"></i> Back to List
+                        </a>
+                    </div>
+                </div>
+                <div class="material-content-display my-4" th:if="${currentMaterial != null}">
+                    <div th:if="${currentMaterial.type == 'YOUTUBE' or currentMaterial.fileUrl?.contains('youtube') or currentMaterial.fileUrl?.contains('youtu.be')}">
+                        <iframe th:src="${currentMaterial.fileUrl?.replace('watch?v=', 'embed/')?.replace('youtu.be/', 'www.youtube.com/embed/')}"
+                                id="material-youtube"
+                                style="width: 100%; height: 70vh; border: none;"
+                                allowfullscreen></iframe>
+                    </div>
+                    <div th:if="${currentMaterial.type == 'VIDEO' or currentMaterial.fileUrl?.endsWith('.mp4') or currentMaterial.fileUrl?.endsWith('.webm')}">
+                        <video id="material-video" style="width: 100%; height: 70vh;" controls>
+                            <source th:src="@{${currentMaterial.fileUrl}}" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                    <iframe th:unless="${currentMaterial.type == 'YOUTUBE' or currentMaterial.type == 'VIDEO' or currentMaterial.fileUrl?.contains('youtube') or currentMaterial.fileUrl?.contains('youtu.be') or currentMaterial.fileUrl?.endsWith('.mp4') or currentMaterial.fileUrl?.endsWith('.webm')}" th:src="@{${currentMaterial.fileUrl + '#toolbar=0'}}" id="material-frame"
+                            style="width: 100%; height: 70vh; border: none;"></iframe>
+                    <audio th:src="@{${currentMaterial.fileUrl}}" id="material-audio" controls
+                           style="width: 100%; display: none;"></audio>
+
+                </div>
+            </main>
+
+            <div class="col-md-4 col-lg-3 px-0 border border-2 border-start" style="height: 100vh">
+
+                <div th:if="${currentMaterial != null}" class="card mb-4 shadow-sm">
+                    <div class="card-body">
+                        <div class="row align-items-center mb-3">
+                            <div class="col-6">
+                                <h6 class="mb-1 text-muted">Estimated Study Time:</h6>
+                                <p class="mb-0 fw-bold">
+                                    <span th:if="${currentMaterial.estimatedTimeInMinutes != null}">
+                                        [[${currentMaterial.estimatedTimeInMinutes}]] minutes
+                                    </span>
+                                    <span th:unless="${currentMaterial.estimatedTimeInMinutes != null}">
+                                        Not specified
+                                    </span>
+                                </p>
+                            </div>
+
+                            <div class="col-6">
+                                <h6 class="mb-1 text-muted">Study Time:</h6>
+                                <p class="mb-0 fw-bold" id="actualStudyTimeDisplay">00:00</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <nav class="px-0" style="overflow-y: auto; height: calc(100vh - 150px);">
+                    <div class="d-flex align-items-center justify-content-between px-4 py-3">
+                        <div class="fs-5 fw-semibold text-dark">
+                            Course Content
+                        </div>
+                        <div class="bg-primary text-white text-nowrap rounded-pill px-3 py-1 shadow-sm small fw-semibold">
+                            <span>Progress: </span>
+                            <span th:text="${completedCount} + '/' + ${totalCount}"></span>
+                        </div>
+                    </div>
+
+                    <div id="accordion">
+                        <div th:each="courseSession : ${courseSessions}"
+                             th:classappend="${courseSession.id == currentSession?.id ? 'active-session' : ''}"
+                             class="card border-0 session-card p-0 rounded-0" style="background-color: white;">
+
+                            <div class="card-header p-0 rounded-0 border-bottom" th:id="'heading' + ${courseSession.id}">
+                                <a class="btn btn-light text-left d-flex justify-content-between align-items-center session-toggle p-3 w-100 rounded-0 fw-bold"
+                                   th:data-session-id="${courseSession.id}"
+                                   data-toggle="collapse"
+                                   th:attr="data-target='#collapse' + ${courseSession.id}"
+                                   aria-expanded="${courseSession.id == currentSession?.id}"
+                                   th:aria-controls="'collapse' + ${courseSession.id}"
+                                   th:href="@{/student/courses/{courseId}/learn(courseId=${courseId}, sessionId=${courseSession.id})}">
+                                    <span th:text="${courseSession.name}" class="fw-bold fs-5"></span>
+                                    <i class="fas fa-chevron-down"></i>
+                                </a>
+                            </div>
+
+                            <div th:id="'collapse' + ${courseSession.id}" class="collapse"
+                                 th:attr="aria-labelledby='heading' + ${courseSession.id}"
+                                 th:classappend="${courseSession.id == currentSession?.id ? 'show' : ''}"
+                                 data-parent="#accordion">
+                                <div class="card-body p-0 bg-light">
+                                    <ul class="nav flex-column materials-list ps-2 pe-2 pt-2 pb-2" th:data-session-id="${courseSession.id}">
+                                        <li th:each="material : ${courseSession.id == currentSession?.id ? materials : {}}"
+                                            th:classappend="${material.id == currentMaterial.id ? 'active-material' : ''}"
+                                            class="nav-item mb-1 rounded">
+                                            <a class="material-link btn w-100 text-left d-flex align-items-center justify-content-between p-2 material-item rounded bg-white shadow-sm"
+                                               th:data-material-url="${material.fileUrl}"
+                                               th:data-material-id="${material.id}"
+                                               th:data-completed="${materialCompletedMap[material.id]}"
+                                               th:href="@{/student/courses/{courseId}/learn(courseId=${course.id},sessionId=${currentSession.id},materialId=${material.id})}">
+                                                <div class="d-flex align-items-center ps-2">
+                                                    <span th:text="${material.name}" class="material-name fs-6"></span>
+                                                </div>
+                                                <span th:if="${materialCompletedMap[material.id]}"
+                                                      class="badge badge-success badge-pill bg-success text-white px-2 py-1 rounded-pill d-inline-flex align-items-center gap-1">
+                                <i class="fas fa-check-circle"></i>
+                            </span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+
+        </div>
+    </div>
+
+    <style>
+        <!--        /* Làm nổi bật session đang mở */-->
+        <!--        .active-session .card-header {-->
+        <!--            background-color: #e9f5ff;-->
+        <!--            border-left: 4px solid #007bff;-->
+        <!--        }-->
+
+        <!--        /* Làm nổi bật material đang chọn */-->
+        <!--        .active-material button {-->
+        <!--            background-color: #007bff;-->
+        <!--            color: white;-->
+        <!--            font-weight: bold;-->
+        <!--        }-->
+
+                /* Làm nổi bật material đang chọn */-->
+                .active-material {
+                    background-color: #e0f2ff;
+                    border-left: 4px solid #1d4ed8;
+                    font-weight: bold;
+                    color: #1d4ed8;
+                }
+                /* Hiệu ứng hover cho material */
+                .material-link:hover {
+                    background-color: #e9f5ff;
+                }
+
+                /* Xoay icon khi mở session */
+                .session-toggle[aria-expanded="true"] i {
+                    transform: rotate(180deg);
+                    transition: transform 0.3s;
+                }
+
+                .session-toggle[aria-expanded="false"] i {
+                    transform: rotate(0deg);
+                    transition: transform 0.3s;
+                }
+
+                .completed-material button {
+                    background-color: #d4edda;
+                    color: #155724;
+                    font-weight: bold;
+                }
+    </style>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Toggle sessions and load materials dynamically
+            document.querySelectorAll(".session-toggle").forEach(button => {
+                button.addEventListener("click", function () {
+                    const sessionId = this.getAttribute("data-session-id");
+                    const target = document.querySelector("#collapse" + sessionId);
+
+                    if (!target.classList.contains("show")) {
+                        // Nếu chưa mở, thì đóng tất cả các session khác trước
+                        document.querySelectorAll(".collapse.show").forEach(el => el.classList.remove("show"));
+                        target.classList.add("show");
+                    } else {
+                        target.classList.remove("show");
+                    }
+                });
+            });
+
+            // Handle material click
+            document.querySelectorAll(".material-link").forEach(button => {
+                button.addEventListener("click", function (event) {
+                    event.preventDefault();
+                    const materialUrl = this.getAttribute("data-material-url");
+                    const materialId = this.getAttribute("data-material-id");
+                    console.log("Material ID:", materialId); // Debug
+                    document.getElementById("material-frame").src = materialUrl || "";
+
+                    document.querySelectorAll(".materials-list .nav-item").forEach(item => {
+                        item.classList.remove("active-material");
+                    });
+                    this.closest(".nav-item").classList.add("active-material");
+
+                    const params = new URLSearchParams({
+                        sessionId: [[${currentSession.id}]],
+                        materialId: this.getAttribute("data-material-id"),
+                        studyTimeInSeconds: 0
+                    });
+                    const courseId = [[${course.id}]];
+                    fetch(`/student/courses/${courseId}/learn/progress/update-time`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        },
+                        body: params
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            console.error('Failed to update study time on server.');
+                        }
+                        studyTimeInSeconds = 0; // Reset counter after successful update
+                    })
+                    .catch(error => {
+                        console.error('Error updating study time:', error);
+                    });
+                });
+            });
+        });
+    </script>
+
+    <!--    Mark as complete-->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const materialFrame = document.getElementById("material-frame");
+            const materialIdInput = document.getElementById("materialIdInput");
+            const markCompleteForm = document.getElementById("markCompleteForm");
+
+            document.querySelectorAll(".material-link").forEach(button => {
+                button.addEventListener("click", function () {
+                    const materialUrl = this.getAttribute("data-material-url");
+                    const materialId = this.getAttribute("data-material-id");
+                    const isCompleted = this.getAttribute("data-completed") === 'true';
+
+                    // Load tài liệu
+                    materialFrame.src = materialUrl || "";
+
+                    // Gán ID vào form
+                    materialIdInput.value = materialId;
+
+                    // Ẩn/hiện nút Mark as Complete dựa vào trạng thái hoàn thành
+                    if (isCompleted) {
+                        markCompleteForm.style.display = "none";
+                    } else {
+                        markCompleteForm.style.display = "inline-block";
+                    }
+
+                    console.log("Material ID:", materialId, "Completed:", isCompleted);
+                });
+            });
+        });
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const materialLinks = document.querySelectorAll(".material-link");
+            const frame = document.getElementById("material-frame");
+            const audio = document.getElementById("material-audio");
+            const video = document.getElementById("material-video");
+            const link = document.getElementById("material-link");
+            const actualStudyTimeDisplay = document.getElementById("actualStudyTimeDisplay");
+            let studyTimer;
+            let studyTimeInSeconds = 0;
+            let currentMaterialId;
+            let currentSessionId;
+            let currentCourseId;
+
+            function formatTime(totalSeconds) {
+                    const minutes = Math.floor(totalSeconds / 60);
+                    const seconds = totalSeconds % 60;
+                    return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            }
+
+            function updateStudyTimeOnServer() {
+                if (currentMaterialId && currentSessionId && currentCourseId && studyTimeInSeconds > 0) {
+                    const params = new URLSearchParams({
+                        sessionId: currentSessionId,
+                        materialId: currentMaterialId,
+                        studyTimeInSeconds: studyTimeInSeconds
+                    });
+
+                    fetch(`/student/courses/${currentCourseId}/learn/progress/update-time`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        },
+                        body: params
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            console.error('Failed to update study time on server.');
+                        }
+                        studyTimeInSeconds = 0; // Reset counter after successful update
+                    })
+                    .catch(error => {
+                        console.error('Error updating study time:', error);
+                    });
+                }
+            }
+            function markMaterialAsCompleted() {
+                const currentMaterialIsCompleted  = [[${currentMaterialProgress.isCompleted}]]
+                if (currentMaterialId && currentSessionId && currentCourseId && !currentMaterialIsCompleted) {
+                    fetch(`/student/courses/${currentCourseId}/learn/progress/update?sessionId=${currentSessionId}&materialId=${currentMaterialId}`, {
+                    method: 'POST',
+                    }).then(response => {
+                        if (!response.ok) {
+                            console.error('Failed to mark material as completed.');
+                        } else {
+                            console.log('Material marked as completed!');
+                            //isMaterialMarkedComplete = true;
+                        }
+                    }).catch(error => {
+                        console.error('Error marking material as completed:', error);
+                    });
+                }
+            }
+
+            function startStudyTimer() {
+                const expectedStudyTimeInSeconds = [[${currentMaterial.estimatedTimeInMinutes}]] * 60
+                if (!studyTimer) {
+                    studyTimer = setInterval(() => {
+                        studyTimeInSeconds++;
+                        if (actualStudyTimeDisplay) {
+                            const currentDisplayTimeParts = actualStudyTimeDisplay.innerText.split(':');
+                            let currentMinutes = parseInt(currentDisplayTimeParts[0]) || 0;
+                            let currentSeconds = parseInt(currentDisplayTimeParts[1]) || 0;
+                            let totalDisplaySeconds = currentMinutes * 60 + currentSeconds + 1;
+                            actualStudyTimeDisplay.innerText = formatTime(totalDisplaySeconds);
+                        }
+                        // Nếu học đủ thời gian => tự động mark complete
+                        if (expectedStudyTimeInSeconds > 0 && studyTimeInSeconds >= expectedStudyTimeInSeconds) {
+                            markMaterialAsCompleted();
+                        }
+                    }, 1000);
+                }
+            }
+
+            function stopStudyTimer() {
+                if (studyTimer) {
+                    clearInterval(studyTimer);
+                    studyTimer = null;
+                    updateStudyTimeOnServer();
+                }
+            }
+
+            function convertToYoutubeEmbedUrl(url) {
+                let videoId;
+                if (url.includes("youtu.be/")) {
+                    videoId = url.split("youtu.be/")[1];
+                } else if (url.includes("youtube.com/watch?v=")) {
+                    videoId = url.split("v=")[1];
+                    const ampersandPosition = videoId.indexOf('&');
+                    if (ampersandPosition !== -1) {
+                        videoId = videoId.substring(0, ampersandPosition);
+                    }
+                }
+                return videoId ? `https://www.youtube.com/embed/${videoId}` : url;
+            }
+
+            materialLinks.forEach(linkElement => {
+                linkElement.addEventListener("click", function (event) {
+                    event.preventDefault();
+                    stopStudyTimer();
+
+                    const materialUrl = this.getAttribute("data-material-url");
+                    currentMaterialId = this.getAttribute("data-material-id");
+                    currentSessionId = [[${currentSession.id}]];
+                    currentCourseId = [[${course.id}]];
+                    studyTimeInSeconds = 0;
+
+                    console.log("Material clicked:", currentMaterialId, currentSessionId, currentCourseId);
+
+                    // Reset display
+                    frame.style.display = "none";
+                    audio.style.display = "none";
+                    video.style.display = "none";
+                    youtube.style.display = "none";
+                    link.style.display = "none";
+
+                    const url = materialUrl.toLowerCase();
+
+                    if (url.includes("youtube.com/embed") || url.includes("youtu.be/")) {
+                                link.src = materialUrl;
+                                link.style.display = "block";
+                            } else if (url.includes("youtube.com") || url.includes("youtu.be")) {
+                                const youtubeEmbedUrl = convertToYoutubeEmbedUrl(url);
+                                link.src = youtubeEmbedUrl;
+                                link.style.display = "block";
+                            } else if (url.endsWith(".mp3") || url.endsWith(".wav")) {
+                                audio.src = materialUrl;
+                                audio.style.display = "block";
+                            } else if (url.endsWith(".mp4") || url.endsWith(".webm")) {
+                                video.src = materialUrl;
+                                video.style.display = "block";
+                            } else if (url.endsWith(".pdf")) {
+                                frame.src = `${materialUrl}#toolbar=0&navpanes=0&scrollbar=0`;
+                                frame.style.display = "block";
+                            } else {
+                                frame.src = materialUrl;
+                                frame.style.display = "block";
+                            }
+
+                    startStudyTimer();
+                    actualStudyTimeDisplay.innerText = "00:00";
+                });
+            });
+
+            //window.addEventListener("beforeunload", function (event) {
+                stopStudyTimer();
+            //});
+            // Start timer and set initial display on page load
+
+
+            // Optional: Start timer on first load if needed
+            startStudyTimer();
+        });
+    </script>
+</div>

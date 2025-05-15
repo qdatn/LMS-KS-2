@@ -1,0 +1,156 @@
+<div th:fragment="content">
+    <div class="container py-5">
+        <!-- Hiển thị thông báo sau khi enroll thành công -->
+        <div th:if="${enrollMessage != null}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <strong>Success!</strong> <span th:text="${enrollMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <div class="row g-5">
+            <div class="col-lg-8">
+                <h1 class="display-5 fw-bold mb-4" th:text="${course.name}">Course Name</h1>
+                <p class="lead text-muted mb-4">
+                    <i class="bi bi-person-fill me-2"></i>
+                    Instructor:
+                    <span class="fw-semibold"
+                          th:text="${course.instructor != null ? course.instructor.fullName : 'N/A'}"></span>
+                </p>
+
+                <div class="card shadow-sm rounded mb-5 border-0">
+                    <div class="card-body">
+                        <h4 class="card-title fw-semibold mb-3"><i class="bi bi-info-circle-fill me-2 text-info"></i>
+                            About this course</h4>
+                        <div th:utext="${course.description}" class="text-secondary lh-lg"></div>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm rounded mb-5 border-0" th:if="${not #lists.isEmpty(course.topics)}">
+                    <div class="card-body">
+                        <h4 class="card-title fw-semibold mb-3">
+                            <i class="bi bi-lightbulb-fill me-2 text-warning"></i> What you’ll learn
+                        </h4>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex align-items-center"
+                                th:each="topic : ${course.topics}" th:if="${topic != null}">
+                                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                <span th:text="${topic.topicName}">Topic name</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm rounded mb-5 border-0" th:if="${not #lists.isEmpty(course.assessments)}">
+                    <div class="card-body">
+                        <h4 class="card-title fw-semibold mb-3">
+                            <i class="bi bi-clipboard-check-fill me-2 text-primary"></i> Assessments
+                        </h4>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex align-items-center"
+                                th:each="assess : ${course.assessments}" th:if="${assess != null}">
+                                <i class="bi bi-list-task me-2 text-secondary"></i>
+                                <span th:text="${assess.name}">Assessment name</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+
+                <div class="accordion mb-4" id="sessionsAccordion">
+                    <h4 class="fw-semibold mb-3"><i class="bi bi-camera-video-fill me-2 text-danger"></i> Course
+                        Sessions</h4>
+                    <div class="card shadow-sm rounded border-0"
+                         th:each="sessionWithMaterials : ${sessionsWithMaterials}">
+                        <div class="card-header bg-white p-2" th:id="'heading-' + ${sessionWithMaterials.session.id}">
+                            <h5 class="mb-0">
+                                <button class="btn w-100 text-left collapsed d-flex justify-content-between align-items-center"
+                                        type="button" data-bs-toggle="collapse"
+                                        th:data-bs-target="'#collapse-' + ${sessionWithMaterials.session.id}"
+                                        aria-expanded="false"
+                                        th:aria-controls="'collapse-' + ${sessionWithMaterials.session.id}">
+                                    <span th:text="${sessionWithMaterials.session.name}"
+                                          class="font-weight-bold"></span>
+                                    <i class="bi bi-chevron-down"></i>
+                                </button>
+                            </h5>
+                        </div>
+                        <div th:id="'collapse-' + ${sessionWithMaterials.session.id}" class="collapse"
+                             th:attr="aria-labelledby='heading-' + ${sessionWithMaterials.session.id}"
+                             data-bs-parent="#sessionsAccordion">
+                            <div class="card-body p-3">
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item d-flex align-items-center"
+                                        th:each="material : ${sessionWithMaterials.materials}"
+                                        th:if="${not #lists.isEmpty(sessionWithMaterials.materials)}">
+                                        <i class="bi bi-file-earmark-text-fill text-secondary me-2"></i>
+                                        <span th:text="${material.name}"></span>
+                                    </li>
+                                    <li class="list-group-item"
+                                        th:if="${#lists.isEmpty(sessionWithMaterials.materials)}">
+                                        No materials available for this session.
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <a th:href="@{/student/courses}" class="btn btn-outline-secondary mt-4">
+                    <i class="bi bi-arrow-left me-2"></i>Back to List
+                </a>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card shadow rounded border-0">
+                    <img th:src="${course.image}" class="card-img-top rounded-top"
+                         style="height: 250px; object-fit: cover;" alt="Course Image">
+                    <div class="card-body p-4">
+                        <h5 class="card-title fw-bold text-center mb-4"><i
+                                class="bi bi-bookmark-fill text-info me-2"></i> Course Summary</h5>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <strong class="text-muted">Code:</strong>
+                                <span class="fw-semibold" th:text="${course.code}"></span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <strong class="text-muted">Language:</strong>
+                                <span th:text="${course.language}"></span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <strong class="text-muted">Level:</strong>
+                                <span th:text="${course.level}"></span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <strong class="text-muted">Duration:</strong>
+                                <span><i class="bi bi-clock-fill text-warning me-1"></i> <span
+                                        th:text="${course.durationInWeeks}"></span> weeks</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <strong class="text-muted">Price:</strong>
+                                <span class="text-decoration-line-through text-danger">$<span
+                                        th:text="${#numbers.formatDecimal(course.price, 0, 'COMMA', 2, 'POINT')}"></span></span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-center align-items-center">
+                                <strong class="text-muted me-2">Now:</strong>
+                                <span class="badge bg-success fs-6">$<span
+                                        th:text="${#numbers.formatDecimal(course.discountedPrice, 0, 'COMMA', 2, 'POINT')}"></span>
+                                    <span class="badge bg-warning ms-2"
+                                          th:text="${#numbers.formatDecimal(course.discount, 0, 'COMMA', 0, 'POINT')} + '% off'"></span>
+                                </span>
+                            </li>
+                        </ul>
+                        <div th:if="${!enrolledCourseIds.contains(course.id)}">
+                            <form th:action="@{/student/courses/{courseId}/enroll(courseId = ${course.id})}"
+                                  method="post">
+                                <div class="d-grid mt-4">
+                                    <button class="btn btn-primary btn-lg" type="submit">
+                                        <i class="bi bi-cart-plus-fill me-2"></i> Enroll Now
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

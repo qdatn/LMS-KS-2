@@ -1,0 +1,11 @@
+.afl-table-responsive {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.afl-table thead th {
+    position: sticky;
+    top: 0;
+    background-color: #f8f9fa;
+    z-index: 1;
+}

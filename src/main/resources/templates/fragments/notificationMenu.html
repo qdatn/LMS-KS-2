@@ -1,0 +1,427 @@
+<div th:fragment="notificationList(notificationRecipientsGlobal)" class="dropdown me-3">
+    <!-- Existing notification button and dropdown remain unchanged -->
+    <button class="btn btn-secondary position-relative" type="button" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="fa fa-bell"></i>
+        <span th:if="${not #lists.isEmpty(notificationRecipientsGlobal)}" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+            <span th:text="${#lists.size(notificationRecipientsGlobal.?[!isRead])}"></span>
+        </span>
+    </button>
+
+    <ul class="notifications-list dropdown-menu dropdown-menu-end shadow-sm border-0" aria-labelledby="notificationDropdown">
+        <li class="dropdown-header border-bottom px-3 py-2 d-flex justify-content-between align-items-center bg-white">
+            <span class="fw-bold text-dark fs-6">🔔 Notifications</span>
+            <button id="markAllReadBtn" class="btn btn-sm btn-outline-primary rounded-pill px-3 d-flex align-items-center">
+                Mark all as read
+            </button>
+        </li>
+
+        <li th:each="notificationRecipient : ${notificationRecipientsGlobal}" class="notification-item">
+            <a class="dropdown-item d-flex align-items-start gap-2 p-3 border-bottom"
+               th:href="@{|/notifications/${notificationRecipient.id}/read?redirectUrl=${notificationRecipient.notification.type.url +
+                (not #strings.isEmpty(notificationRecipient.notification.objectId) ? '/' + notificationRecipient.notification.objectId : '')}|}"
+               th:data-id="${notificationRecipient.id}"
+               th:data-bs-toggle="tooltip"
+               th:data-bs-placement="left"
+               th:title="${notificationRecipient.notification.message}"
+               th:classappend="${!notificationRecipient.isRead ? 'unread' : ''}">
+                <!-- Icon -->
+                <div class="notification-icon rounded-circle d-flex align-items-center justify-content-center flex-shrink-0">
+                    <i th:class="${notificationRecipient.notification.type.icon}"></i>
+                </div>
+                <div class="flex-grow-1 min-width-0">
+                    <!-- Message trên title -->
+                    <p class="notification-message mb-2" th:text="${notificationRecipient.notification.message}"></p>
+                    <!-- Title với thiết kế nổi bật -->
+                    <div class="notification-title-container mb-1 d-flex justify-content-between align-items-center">
+                        <span class="notification-title" th:text="${notificationRecipient.notification.type.title}"></span>
+                        <span th:unless="${notificationRecipient.isRead}" class="badge bg-primary rounded-pill fs-xs flex-shrink-0 ms-1">New</span>
+                    </div>
+
+                    <small class="text-muted d-block">
+                        <i class="fa fa-clock-o me-1"></i>
+                        <span th:text="${#temporals.format(notificationRecipient.notification.date, 'dd/MM/yyyy HH:mm')}"></span>
+                    </small>
+                </div>
+            </a>
+        </li>
+
+        <li th:if="${#lists.isEmpty(notificationRecipientsGlobal)}" class="p-4 text-center">
+            <div class="text-muted">
+                <i class="fa fa-bell-slash fa-2x mb-2"></i>
+                <p class="mb-0">No notifications</p>
+            </div>
+        </li>
+
+    </ul>
+    <input id="currentUserId" name="currentUserId" required th:value="${currentUserId != null ? currentUserId : ''}" type="hidden">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+
+    <script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            connectWebSocket();
+            initializeTooltips();
+
+            const markAllReadBtn = document.getElementById('markAllReadBtn');
+
+            if (markAllReadBtn) {
+                markAllReadBtn.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+
+                    fetch('/api/v1/notifications/mark-all-read', {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]')?.content || ''
+                        }
+                    })
+                        .then(response => {
+                            if (response.ok) {
+                                const unreadElements = document.querySelectorAll('.notification-item .dropdown-item.unread');
+                                unreadElements.forEach(element => {
+                                    element.classList.remove('unread');
+                                });
+
+                                const newBadges = document.querySelectorAll('.notification-item .badge.bg-primary');
+                                newBadges.forEach(badge => {
+                                    badge.remove();
+                                });
+
+                                const counterBadge = document.querySelector('#notificationDropdown .badge.bg-danger');
+                                if (counterBadge) {
+                                    counterBadge.style.display = 'none';
+                                }
+
+                                console.log('All notifications marked as read');
+                            } else {
+                                console.error('Failed to mark notifications as read');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error marking notifications as read:', error);
+                        });
+                });
+            }
+        });
+
+        function initializeTooltips() {
+            // Initialize Bootstrap tooltips
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl, {
+                    boundary: document.body
+                });
+            });
+        }
+
+        let stompClient = null;
+        let notificationCount = 0;
+
+        function connectWebSocket() {
+            const socket = new SockJS('/ws');
+            stompClient = Stomp.over(socket);
+
+            stompClient.debug = null;
+
+            stompClient.connect({}, function(frame) {
+                console.log('Connected to WebSocket');
+
+                reconnectAttempts = 0; // reset counter khi kết nối thành công
+
+                const userId = document.getElementById('currentUserId').value;
+                if (userId) {
+                    stompClient.subscribe(`/user/${userId}/notification`, function(notification) {
+                        handleNewNotification(JSON.parse(notification.body));
+                    });
+
+                    stompClient.subscribe('/topic/global-notifications', function(notification) {
+                        handleNewNotification(JSON.parse(notification.body));
+                    });
+                }
+            }, function(error) {
+                console.error('Error connecting to WebSocket:', error);
+                reconnectAttempts++;
+                if (reconnectAttempts < 5) {
+                    setTimeout(connectWebSocket, 5000);
+                } else {
+                    console.error('Đã vượt quá 5 lần thử kết nối lại. Không kết nối lại nữa.');
+                }
+            });
+        }
+
+        function handleNewNotification(notification) {
+            notificationCount++;
+
+            addNotificationToList(notification);
+            updateNotificationBadge();
+            showToastNotification(notification);
+            initializeTooltips();
+        }
+
+
+        function updateNotificationBadge() {
+            const unreadCount = document.querySelectorAll('.notification-item .dropdown-item.unread').length;
+            const badge = document.querySelector('#notificationDropdown .badge.bg-danger');
+
+            if (badge) {
+                if (unreadCount > 0) {
+                    badge.textContent = unreadCount;
+                    badge.style.display = 'inline-block';
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
+        }
+
+        function addNotificationToList(notification) {
+            const notificationsList = document.querySelector('.notifications-list');
+            if (!notificationsList) return;
+
+            const emptyNotification = notificationsList.querySelector('li:last-child .text-muted');
+            if (emptyNotification && emptyNotification.textContent.includes('No notifications')) {
+                emptyNotification.closest('li').remove();
+            }
+            const li = document.createElement('li');
+            li.className = 'notification-item';
+
+            const unreadClass = notification.isRead ? '' : 'unread';
+            const redirectUrl = notification.typeUrl + (notification.objectId ? '/' + notification.objectId : '');
+
+            li.innerHTML = `
+        <a class="dropdown-item d-flex align-items-start gap-2 p-3 border-bottom ${unreadClass}"
+           href="/notifications/${notification.notificationRecipientId}/read?redirectUrl=${encodeURIComponent(redirectUrl)}"
+           data-bs-toggle="tooltip"
+           data-bs-placement="left"
+           title="${notification.message}"
+           data-id="${notification.recipientId}">
+            <div class="notification-icon rounded-circle d-flex align-items-center justify-content-center flex-shrink-0">
+                <i class="${notification.typeIcon}"></i>
+            </div>
+            <div class="flex-grow-1 min-width-0">
+                <p class="notification-message mb-2">${notification.message}</p>
+
+               <div class="notification-title-container mb-1 d-flex justify-content-between align-items-center">
+                     <span class="notification-title">${notification.title}</span>
+                     <span th:unless="${notification.isRead}" class="badge bg-primary rounded-pill fs-xs flex-shrink-0 ms-1">New</span>
+                </div>
+                <small class="text-muted d-block">
+                    <i class="fa fa-clock-o me-1"></i>
+                    ${timeAgo(notification.date)}
+                </small>
+            </div>
+        </a>
+    `;
+
+            const firstItem = notificationsList.querySelector('li.dropdown-header');
+            if (firstItem && firstItem.nextElementSibling) {
+                notificationsList.insertBefore(li, firstItem.nextElementSibling);
+            } else {
+                notificationsList.appendChild(li);
+            }
+
+            // Initialize tooltips for the new element
+            initializeTooltips();
+        }
+
+        function showToastNotification(notification) {
+            let toastContainer = document.getElementById('toast-container');
+            if (!toastContainer) {
+                toastContainer = document.createElement('div');
+                toastContainer.id = 'toast-container';
+                toastContainer.className = 'position-fixed bottom-0 start-0 p-3'; // Changed from end-0 to start-0
+                toastContainer.style.zIndex = '1050';
+                document.body.appendChild(toastContainer);
+            }
+
+            const toastId = 'toast-' + Date.now();
+            const toast = document.createElement('div');
+            toast.id = toastId;
+            toast.className = 'toast simple-toast'; // Added 'simple-toast' class
+            toast.setAttribute('role', 'alert');
+            toast.setAttribute('aria-live', 'assertive');
+            toast.setAttribute('aria-atomic', 'true');
+
+            const redirectUrl = notification.typeUrl + (notification.objectId ? '/' + notification.objectId : '');
+            const url = `/notifications/${notification}/read?redirectUrl=${encodeURIComponent(redirectUrl)}`;
+
+            toast.innerHTML = `
+        <div class="toast-header">
+            <i class="${notification.typeIcon} me-2"></i>
+            <strong class="me-auto">${notification.title}</strong>
+            <small>${timeAgo(notification.date)}</small>
+            <button type="button" class="btn-close ms-2" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+            <a
+           href="/notifications/${notification.notificationRecipientId}/read?redirectUrl=${encodeURIComponent(redirectUrl)}" class="text-decoration-none text-dark">
+                ${notification.message}
+            </a>
+        </div>
+    `;
+
+            toastContainer.appendChild(toast);
+
+            // Create a new Bootstrap toast instance
+            const bsToast = new bootstrap.Toast(toast, {
+                delay: 5000
+            });
+            bsToast.show();
+
+            // Clean up when hidden
+            toast.addEventListener('hidden.bs.toast', function() {
+                toast.remove();
+            });
+        }
+
+        function timeAgo(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diff = now - date;
+
+            const seconds = Math.floor(diff / 1000);
+            const minutes = Math.floor(seconds / 60);
+            const hours = Math.floor(minutes / 60);
+            const days = Math.floor(hours / 24);
+
+            if (days > 0) return days + 'd ago';
+            if (hours > 0) return hours + 'h ago';
+            if (minutes > 0) return minutes + 'm ago';
+            return 'just now';
+        }
+    </script>
+    <style>
+        /* Existing styles remain unchanged */
+        .notifications-list {
+            max-height: 400px;
+            overflow-y: auto;
+            width: 380px;
+        }
+
+        .notification-icon {
+            width: 40px;
+            height: 40px;
+            background-color: rgba(13, 110, 253, 0.1);
+            color: #0d6efd;
+        }
+
+        .notification-item .dropdown-item:hover {
+            background-color: rgba(0, 0, 0, 0.03);
+            text-decoration: none;
+        }
+
+        .notification-item .dropdown-item.unread {
+            background-color: rgba(13, 110, 253, 0.05);
+        }
+
+        /* Thiết kế title nổi bật hơn */
+        .notification-title-container {
+            display: inline-block;
+        }
+
+        .notification-title {
+            font-size: 0.85rem;
+            color: #0d6efd;
+            font-weight: 500;
+            display: inline-block;
+            max-width: 240px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            vertical-align: middle;
+            background-color: rgba(13, 110, 253, 0.1);
+            border-radius: 15px;
+            padding: 2px 8px;
+        }
+
+        /* Cải thiện message - không quá to và đậm */
+        .notification-message {
+            max-width:280px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            font-size: 0.95rem;
+            word-break: break-word;
+            color: #212529;
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+            max-height: 2.8em; /* Fallback for browsers that don't support -webkit-line-clamp */
+        }
+
+        .fs-xs {
+            font-size: 0.7rem;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+
+        .badge.bg-danger {
+            animation: pulse 2s infinite;
+        }
+
+        /* Đảm bảo nội dung không bị tràn */
+        .dropdown-item .flex-grow-1 {
+            overflow: hidden;
+        }
+
+        /* Tooltip styles */
+        .tooltip {
+            z-index: 1080;
+        }
+
+        .tooltip .tooltip-inner {
+            max-width: 300px;
+            padding: 8px 12px;
+            background-color: rgba(0, 0, 0, 0.85);
+            font-size: 0.9rem;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            text-align: left;
+        }
+
+        /* Simplified Toast notifications */
+        .toast.simple-toast {
+            max-width: 350px;
+            border-left: 3px solid #0d6efd;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            background-color: white;
+        }
+
+        .simple-toast .toast-header {
+            background-color: white;
+            color: #212529;
+            border-bottom: 1px solid #f0f0f0;
+            padding: 0.5rem 0.75rem;
+        }
+
+        .simple-toast .toast-body {
+            padding: 0.75rem;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Mobile optimization */
+        @media (max-width: 576px) {
+            .notifications-list {
+                width: 300px;
+            }
+
+            .toast {
+                max-width: 280px;
+            }
+
+            .notification-title {
+                max-width: 180px;
+            }
+        }
+    </style>
+</div>

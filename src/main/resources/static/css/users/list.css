@@ -1,0 +1,40 @@
+/* CSS for user list page */
+
+.table-users th, .table-users td {
+    vertical-align: middle;
+}
+
+/* Example: style for alerts, buttons, modals, etc. */
+.alert {
+    margin-bottom: 1rem;
+}
+.btn-outline-secondary {
+    margin-right: 0.5rem;
+}
+
+/* Highlight active view toggle button */
+.btn-group .btn.active {
+    background-color: #0d6efd;
+    color: #fff;
+}
+
+/* Grid view card spacing and responsive tweaks */
+#userGridView .card {
+    transition: box-shadow 0.2s;
+}
+#userGridView .card:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.08);
+}
+#userGridView .card-title {
+    font-weight: 600;
+    font-size: 1.2rem;
+}
+#userGridView .card-text {
+    color: #6c757d;
+}
+#userGridView .card-footer {
+    background: none;
+    border-top: none;
+}
+
+/* Add more styles as needed from the HTML <style> blocks if present */

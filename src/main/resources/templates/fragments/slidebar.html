@@ -1,0 +1,58 @@
+<div th:fragment="slidebar" style="height: 100%">
+  <div class="d-flex flex-column flex-shrink-0 bg-dark h-100 w-100">
+    <ul
+      class="nav flex-column w-100 bg-dark p-2 h-100"
+      style="height: 100%; flex-wrap: nowrap; overflow-y: auto"
+    >
+      <li
+        class="nav-item dropdown position-relative"
+        th:each="moduleGroup : ${moduleGroupsGlobal}"
+        th:if="${moduleGroup.modules.size() > 0}"
+      >
+        <a
+          class="nav-link text-white d-flex justify-content-between align-items-center dropdown-toggle text-decoration-none"
+          href="#"
+          role="button"
+          data-bs-toggle="dropdown"
+          data-bs-display="static"
+          aria-expanded="false"
+        >
+          <span th:text="${moduleGroup.name}"></span>
+        </a>
+        <ul
+          class="dropdown-menu w-100 position-static dropdown-menu-dark p-2 rounded shadow"
+        >
+          <li th:each="module : ${moduleGroup.modules}">
+            <a
+              class="slidebar-item dropdown-item text-white text-decoration-none px-3 py-2"
+              th:href="@{${module.url.startsWith('/') ? module.url : '/' + module.url}}"
+              th:onclick="
+                const parentDropdown = this.closest('.dropdown');
+                const dropdowns = document.querySelectorAll('.dropdown');
+                dropdowns.forEach(dropdown => {
+                  if (dropdown !== parentDropdown) {
+                    const toggle = dropdown.querySelector('.dropdown-toggle');
+                    const menu = dropdown.querySelector('.dropdown-menu');
+                    if (toggle && menu) {
+                      toggle.setAttribute('aria-expanded', 'false');
+                      menu.classList.remove('show');
+                      localStorage.setItem(`dropdown-${dropdown.dataset.id}`, 'false');
+                    }
+                  }
+                });
+                window.location.href=this.getAttribute('href');
+                return false;
+              "
+              th:data-module-url="${module.url}"
+            >
+              <i th:class="${module.icon}"></i>
+              <span th:text="${module.name}"></span>
+            </a>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+
+  <th:block th:replace="fragments/scripts :: menu-highlight-scripts"></th:block>
+</div>

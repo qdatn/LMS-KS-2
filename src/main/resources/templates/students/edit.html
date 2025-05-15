@@ -1,0 +1,192 @@
+<div class="px-3" th:fragment="content" xmlns:th="http://www.thymeleaf.org">
+    <div class="container-fluid py-3">
+        <!-- Header -->
+        <div class="row mb-3">
+            <div class="col-12">
+                <div class="bg-primary bg-gradient text-white p-3 rounded-3">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-person-lines-fill me-2"></i>
+                        <h4 class="mb-0">Edit Student</h4> <!-- Tiêu đề "Edit Student" -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alert Box -->
+        <div id="alertBox" class="alert alert-danger py-2 mb-3 d-none" role="alert"></div>
+
+        <!-- Form -->
+        <form id="editStudentForm" th:object="${student}" class="needs-validation" novalidate>
+            <input type="hidden" id="id" th:value="*{id}" />
+            <div class="row mb-3">
+                <!-- Personal Info -->
+                <div class="col-md-6 mb-3 mb-md-0">
+                    <div class="h-100 p-3 bg-light rounded-3">
+                        <h6 class="mb-3">
+                            <i class="fas fa-user text-primary me-2"></i>Personal Information
+                        </h6>
+
+                        <div class="mb-2">
+                            <label for="studentCode" class="form-label small">Student Code</label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text"><i class="bi bi-person-badge"></i></span>
+                                <input type="text" class="form-control" id="studentCode" th:field="*{studentCode}" placeholder="Enter student ID" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-2">
+                            <label for="firstName" class="form-label small">First Name</label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text"><i class="bi bi-person"></i></span>
+                                <input type="text" class="form-control" id="firstName" th:field="*{firstName}" placeholder="Enter first name" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-2">
+                            <label for="lastName" class="form-label small">Last Name</label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text"><i class="bi bi-person-lines-fill"></i></span>
+                                <input type="text" class="form-control" id="lastName" th:field="*{lastName}" placeholder="Enter last name" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-2">
+                            <label for="phoneNumber" class="form-label small">Phone Number</label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text"><i class="bi bi-telephone"></i></span>
+                                <input type="text" class="form-control" id="phoneNumber" th:field="*{phoneNumber}" placeholder="Enter phone number">
+                            </div>
+                        </div>
+
+                        <div class="mb-2">
+                            <label for="address" class="form-label small">Address</label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text"><i class="bi bi-geo-alt"></i></span>
+                                <input type="text" class="form-control" id="address" th:field="*{address}" placeholder="Enter address">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Info -->
+                <div class="col-md-6">
+                    <div class="h-100 p-3 bg-light rounded-3">
+                        <h6 class="mb-3">
+                            <i class="fas fa-id-card text-primary me-2"></i>Account Information
+                        </h6>
+
+                        <div class="mb-2">
+                            <label for="email" class="form-label small">Email Address</label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                                <input type="email" class="form-control" placeholder="Enter email" id="email" th:field="*{email}" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-2">
+                            <label for="username" class="form-label small">Username</label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text"><i class="bi bi-person-badge"></i></span>
+                                <input type="text" class="form-control" placeholder="Enter username" id="username" th:field="*{username}" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-2">
+                            <label for="password" class="form-label small">Password</label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                                <input type="password" class="form-control" placeholder="Enter new password (leave empty to keep current password)" id="password" th:field="*{password}" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security Settings -->
+            <div class="mb-3 p-3 bg-light rounded-3">
+                <h6 class="mb-2">
+                    <i class="fas fa-shield-alt text-primary me-2"></i>Security Settings
+                </h6>
+
+                <div class="row g-2">
+                    <div class="col-md-6">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="enable2FA" th:field="*{is2faEnabled}">
+                            <label class="form-check-label small" for="enable2FA">
+                                Enable Two-Factor Authentication
+                            </label>
+                            <div class="form-text small">Adds an extra layer of security</div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="lockAccount" th:field="*{isLocked}">
+                            <label class="form-check-label small" for="lockAccount">
+                                Lock Account
+                            </label>
+                            <div class="form-text small">Prevents instructor from logging in</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="d-flex justify-content-end gap-2 mt-3">
+                <a href="/students" class="btn btn-secondary btn-sm">
+                    <i class="fas fa-arrow-left me-1"></i>Back To List
+                </a>
+                <button type="submit" class="btn btn-primary btn-sm">
+                    <i class="fas fa-save me-1"></i>Save
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#editStudentForm').on('submit', function (e) {
+                e.preventDefault();
+                const id = $('#id').val();
+                const student = {
+                    id: $('#id').val().trim(),
+                    studentCode: $('#studentCode').val().trim(),
+                    firstName: $('#firstName').val().trim(),
+                    lastName: $('#lastName').val().trim(),
+                    phoneNumber: $('#phoneNumber').val().trim(),
+                    address: $('#address').val().trim(),
+                    email: $('#email').val().trim(),
+                    username: $('#username').val().trim(),
+                    password: $('#password').val().trim(),
+                    is2faEnabled: $('#enable2FA').is(':checked'),
+                    isLocked: $('#lockAccount').is(':checked')
+                };
+
+                $.ajax({
+                    url: `/api/students/${id}`,
+                    type: 'PUT',
+                    contentType: 'application/json',
+                    data: JSON.stringify(student),
+                    success: function () {
+                        window.location.href = "/students";
+                    },
+                    error: function (xhr) {
+                        const message = xhr.responseText || 'Failed to update student.';
+                        showAlert('danger', message);
+                    }
+                });
+            });
+        });
+
+        function showAlert(type, message) {
+            const icon = type === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill';
+            $('#alertBox')
+                .removeClass('d-none')
+                .removeClass('alert-success alert-danger')
+                .addClass(`alert-${type}`)
+                .html(`<i class="bi ${icon} me-2"></i>${message}`);
+        }
+    </script>
+</div>

@@ -1,0 +1,137 @@
+.scrollable-table {
+    overflow: auto;
+    max-height: 650px; /* Default for larger screens */
+}
+
+/* Media queries for responsive design */
+@media (max-width: 1200px) {
+    .scrollable-table {
+        max-height: 500px;
+    }
+}
+
+@media (max-width: 768px) {
+    .scrollable-table {
+        max-height: 300px;
+    }
+}
+
+@media (max-width: 576px) {
+    .scrollable-table {
+        max-height: 300px;
+    }
+}
+
+  .small-sidebar-divider {
+      height: 1px;
+      background-color: rgba(255, 255, 255, 0.2);
+      margin: 0;
+  }
+
+  .small-sidebar-nav-link {
+      transition: background-color 0.3s;
+      font-size: 1rem;
+  }
+
+  .small-sidebar-nav-link:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 0.25rem;
+  }
+
+  .small-sidebar-nav-link.active {
+      background-color: rgba(255, 255, 255, 0.125) !important;
+      border-left: 3px solid #007bff;
+  }
+
+  .small-sidebar-small-text {
+      font-size: 0.8rem;
+  }
+
+  /* Thêm cuộn nếu quá nhiều item */
+  .small-sidebar-menu-container {
+      max-height: calc(100vh - 20px);
+      /* Tránh bị tràn ra ngoài */
+      overflow-y: auto;
+      overflow-x: hidden;
+  }
+
+  /* Ẩn scrollbar trên Chrome, Edge */
+  .small-sidebar-menu-container::-webkit-scrollbar {
+      width: 6px;
+  }
+
+  .small-sidebar-menu-container::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 3px;
+  }
+
+  .small-sidebar-menu-container::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.4);
+  }
+
+  /* Highlight styles */
+  .small-sidebar-link.active {
+      background-color: rgba(255, 255, 255, 0.125) !important;
+  }
+
+  .small-sidebar-link:hover {
+      background-color: rgba(255, 255, 255, 0.125) !important;
+  }
+
+         .sidebar-nav-link.active,
+         .sidebar-dropdown-item.active {
+             background-color: rgba(255, 255, 255, 0.1) !important;
+             border-left: 3px solid #007bff;
+         }
+    
+         .sidebar-dropdown-item:hover {
+             background-color: rgba(255, 255, 255, 0.05);
+         }
+    
+         .sidebar-dropdown-menu {
+             border: none;
+             background-color: #343a40;
+             transition: all 0.2s ease;
+             display: none;
+         }
+    
+         .sidebar-dropdown-menu.show {
+             display: block;
+         }
+    
+         .sidebar-dropdown-item {
+             transition: background-color 0.2s ease;
+         }
+    
+         .sidebar-dropdown-item i {
+             margin-right: 10px;
+         }
+    
+         .sidebar-nav-link.dropdown-toggle::after {
+             transition: transform 0.2s ease;
+         }
+    
+         .sidebar-nav-link.dropdown-toggle[aria-expanded="true"]::after {
+             transform: rotate(180deg);
+         }
+    
+         /* Simple scrollbar */
+         .sidebar-nav::-webkit-scrollbar {
+             width: 4px;
+         }
+    
+         .sidebar-nav::-webkit-scrollbar-thumb {
+             background-color: rgba(255, 255, 255, 0.2);
+             border-radius: 2px;
+         }
+    
+         /* Highlight styles */
+         .nav-link.active,
+         .slidebar-item.active {
+             background-color: rgba(255, 255, 255, 0.125) !important;
+         }
+    
+         .nav-link:hover,
+         .slidebar-item:hover {
+             background-color: rgba(255, 255, 255, 0.125) !important;
+         }

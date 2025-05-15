@@ -1,0 +1,169 @@
+<div class="px-5" th:fragment="content">
+    <div class="container mt-4">
+        <h2 class="text-center">Training Program Enrollments by Class</h2>
+
+        <div class="card-body mb-3">
+            <div class="row align-items-center gy-3">
+                <div class="col-md-6 d-flex">
+                    <form th:action="@{/training-program-enrollments}" method="get" class="input-group me-2">
+                        <input type="text" class="form-control" name="searchTerm" placeholder="Search by class or program name">
+                        <button type="submit" class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </form>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="window.location.href='/training-program-enrollments'">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+
+                <div class="col-md-6 d-flex justify-content-end gap-2 flex-wrap">
+                    <button type="button" class="btn btn-outline-secondary" onclick="window.print();">
+                        <i class="bi bi-printer"></i>
+                    </button>
+                    <a th:href="@{/training-program-enrollments/export}" class="btn btn-outline-secondary">
+                        <i class="bi bi-file-earmark-excel"></i>
+                    </a>
+                    <a th:href="@{/training-programs}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> New Enrollment
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${enrollments == null or enrollments.isEmpty()}" class="text-center">
+            <i class="fas fa-exclamation-circle"></i> <span>No enrollments available.</span>
+        </div>
+
+        <div th:unless="${#lists.isEmpty(enrollments)}">
+            <div class="card-body p-4" style="max-height: 450px; overflow-y: auto;">
+                <table class="table table-bordered table-hover align-middle">
+                    <thead class="table-light">
+                    <tr>
+                        <th><input type="checkbox" id="selectAll"></th>
+                        <th>ID</th>
+                        <th>Class Name</th>
+                        <th>Class Code</th>
+                        <th>Program Name</th>
+                        <th>Enrollment Date</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="enrollment : ${enrollments}">
+                        <td><input type="checkbox" class="select-enrollment" th:value="${enrollment.id}"/></td>
+                        <td th:text="${enrollment.id}"></td>
+                        <td th:text="${enrollment.enrolledClass.name}"></td>
+                        <td th:text="${enrollment.enrolledClass.classCode}"></td>
+                        <td th:text="${enrollment.trainingProgram.programName}"></td>
+                        <td th:text="${#temporals.format(enrollment.enrollmentDate, 'yyyy-MM-dd HH:mm')}"></td>
+                        <td>
+                            <form th:action="@{/training-program-enrollments/delete/{id}(id=${enrollment.id})}" method="post" class="delete-form d-inline">
+                                <button type="button" class="btn btn-sm btn-outline-danger single-delete-btn" th:data-id="${enrollment.id}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="mt-4 mb-3 d-flex justify-content-between align-items-center flex-wrap">
+                <div class="d-flex align-items-center gap-3">
+                    <button type="button" id="deleteSelectedBtn" class="btn btn-danger" disabled>
+                        <i class="fas fa-trash-alt me-2"></i> Delete Selected (<span id="selectedCount">0</span>)
+                    </button>
+                    <span class="fw-bold">Total Records: <span th:text="${enrollments.size()}">0</span></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const selectAll = document.getElementById("selectAll");
+            const checkboxes = document.querySelectorAll(".select-enrollment");
+            const deleteBtn = document.getElementById("deleteSelectedBtn");
+            const selectedCountSpan = document.getElementById("selectedCount");
+
+            function updateSelectedCount() {
+                const selected = document.querySelectorAll(".select-enrollment:checked");
+                selectedCountSpan.textContent = selected.length;
+                deleteBtn.disabled = selected.length === 0;
+                selectAll.checked = selected.length === checkboxes.length;
+            }
+
+            selectAll.addEventListener("change", function () {
+                checkboxes.forEach(checkbox => checkbox.checked = selectAll.checked);
+                updateSelectedCount();
+            });
+
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener("change", updateSelectedCount);
+            });
+
+            deleteBtn.addEventListener("click", function () {
+                const selectedIds = Array.from(document.querySelectorAll(".select-enrollment:checked"))
+                                         .map(cb => cb.value);
+                if (selectedIds.length === 0) return;
+
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: `You are about to delete ${selectedIds.length} enrollment(s).`,
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#d33",
+                    cancelButtonColor: "#3085d6",
+                    confirmButtonText: "Yes, delete them!"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch('/training-program-enrollments/delete-selected', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ ids: selectedIds })
+                        }).then(response => {
+                            if (response.ok) {
+                                location.reload();
+                            } else {
+                                Swal.fire("Error", "Failed to delete enrollments", "error");
+                            }
+                        });
+                    }
+                });
+            });
+
+            // Delete single
+            document.querySelectorAll(".single-delete-btn").forEach(button => {
+                button.addEventListener("click", function () {
+                    const enrollmentId = this.getAttribute("data-id");
+
+                    Swal.fire({
+                        title: "Are you sure?",
+                        text: "This enrollment will be permanently deleted!",
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#d33",
+                        cancelButtonColor: "#3085d6",
+                        confirmButtonText: "Yes, delete it!"
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            fetch(`/training-program-enrollments/delete/${enrollmentId}`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+                            }).then(response => {
+                                if (response.ok) {
+                                    Swal.fire("Deleted!", "The enrollment has been deleted.", "success").then(() => {
+                                        location.reload();
+                                    });
+                                } else {
+                                    Swal.fire("Error", "Failed to delete enrollment", "error");
+                                }
+                            });
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+</div>

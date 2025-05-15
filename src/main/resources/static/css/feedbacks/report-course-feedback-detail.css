@@ -1,0 +1,30 @@
+.star-rating {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.rating-star {
+    color: #ffd700; /* Gold for filled stars */
+    font-size: 1.2rem;
+}
+.rating-star-unfilled {
+    color: #d3d3d3; /* Light gray for unfilled stars */
+    font-size: 1.2rem;
+}
+.form-label {
+    display: flex;
+    align-items: center;
+}
+p {
+    margin-bottom: 0;
+    font-size: 14px;
+}
+.feedback-card {
+    max-width: 100%;
+    margin-bottom: 20px;
+}
+.feedback-list-container.scrollable {
+    max-height: 200px; /* Chiều cao tối đa của danh sách feedback */
+    overflow-y: auto; /* Hiển thị thanh cuộn dọc khi nội dung vượt quá */
+    padding-right: 10px; /* Khoảng cách để tránh nội dung bị che bởi thanh cuộn */
+}

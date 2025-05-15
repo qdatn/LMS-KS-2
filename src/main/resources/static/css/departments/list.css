@@ -1,0 +1,136 @@
+/* Giữ thanh cuộn ngang cho toàn bộ bảng */
+.table-responsive {
+    overflow-x: auto;
+}
+
+/* Loại bỏ khoảng cách mặc định của table */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0;
+}
+
+/* Thanh cuộn dọc cho tbody */
+.scrollable-tbody {
+    max-height: 350px;
+    overflow-y: auto;
+    overflow-x: auto;
+    display: block;
+}
+
+/* Chiều rộng thanh cuộn dọc nhỏ hơn */
+.scrollable-tbody::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+/* Màu nền của track */
+.scrollable-tbody::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+/* Màu của thanh cuộn */
+.scrollable-tbody::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+}
+
+/* Màu khi hover */
+.scrollable-tbody::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Thanh cuộn ngang nhỏ hơn */
+.table-responsive::-webkit-scrollbar {
+    height: 6px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Loại bỏ khoảng cách trên thead */
+thead {
+    display: block;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+/* Điều chỉnh padding nếu cần */
+thead th {
+    position: sticky;
+    top: 0;
+    background-color: #f8f9fa;
+    z-index: 1;
+    padding: 8px;
+}
+
+/* Dùng Flexbox cho hàng */
+thead tr, tbody tr {
+    display: flex;
+    width: 100%;
+}
+
+/* Giá trị mặc định nếu không chỉ định cụ thể */
+th, td {
+    flex: 1;
+    text-align: start;
+    box-sizing: border-box;
+}
+
+/* Gán chiều rộng cụ thể cho từng cột */
+th:nth-child(1), td:nth-child(1) { flex: 0 0 5%; }
+th:nth-child(2), td:nth-child(2) { flex: 0 0 5%; }
+th:nth-child(3), td:nth-child(3) { flex: 0 0 25%; }
+th:nth-child(4), td:nth-child(4) { flex: 0 0 25%; }
+th:nth-child(5), td:nth-child(5) { flex: 0 0 12.5%; text-align: center; }
+th:nth-child(6), td:nth-child(6) { flex: 0 0 12.5%; text-align: center; }
+th:nth-child(7), td:nth-child(7) { flex: 0 0 15%; }
+
+/* Đảm bảo nội dung không bị tràn */
+td {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding: 8px;
+}
+
+/* Đảm bảo tbody căn chỉnh chính xác */
+tbody {
+    display: block;
+    width: 100%;
+}
+
+/* Responsive: Điều chỉnh khi màn hình nhỏ */
+@media (max-width: 768px) {
+    /* Giảm chiều cao tối đa trên màn hình nhỏ */
+    .scrollable-tbody {
+        max-height: 200px;
+    }
+
+    /* Giảm kích thước chữ để tránh tràn */
+    th, td {
+        font-size: 14px;
+    }
+
+    /* Điều chỉnh chiều rộng cột trên màn hình nhỏ */
+    th:nth-child(1), td:nth-child(1) { flex: 0 0 8%; }
+    th:nth-child(2), td:nth-child(2) { flex: 0 0 8%; }
+    th:nth-child(3), td:nth-child(3) { flex: 0 0 22%; }
+    th:nth-child(4), td:nth-child(4) { flex: 0 0 22%; }
+    th:nth-child(5), td:nth-child(5) { flex: 0 0 12%; }
+    th:nth-child(6), td:nth-child(6) { flex: 0 0 12%; }
+    th:nth-child(7), td:nth-child(7) { flex: 0 0 16%; }
+}

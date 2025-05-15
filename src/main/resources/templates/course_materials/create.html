@@ -1,0 +1,232 @@
+<div class="px-5" th:fragment="content" xmlns:th="http://www.w3.org/1999/xhtml">
+    <div class="container mt-5">
+        <div class="card shadow-lg border-0 rounded-4">
+            <div class="card-header bg-dark text-white rounded-top-4 d-flex align-items-center">
+                <i class="bi bi-book me-2 fs-4"></i>
+                <h1 class="mb-0 fw-bold">
+                    <span th:text="${material.id != null} ? 'Edit Course Material' : 'Add Course Material'"></span>
+                    <span th:if="${material.course != null}" class="text-white-50 ms-2">
+                        - <span th:text="${material.course.name}"></span>
+                    </span>
+                </h1>
+            </div>
+            <div class="card-body">
+                <div th:if="${error}" class="alert alert-danger d-flex align-items-center" role="alert">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    <span th:text="${error}"></span>
+                </div>
+                <form th:action="${material.id != null} ? '/course-materials/update' : '/course-materials'"
+                      th:object="${material}" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                    <input type="hidden" th:field="*{id}" />
+
+                    <div class="mb-4">
+                        <label for="courseId" class="form-label fw-semibold">
+                            <i class="bi bi-book me-2"></i>Course
+                        </label>
+                        <select class="form-select border-0 shadow-sm rounded-3" id="courseId" name="courseId" required
+                                onchange="loadSessions()">
+                            <option value="">Select Course</option>
+                            <option th:each="course : ${courses}" th:value="${course.id}" th:text="${course.name}"
+                                    th:selected="${material.course?.id == course.id}"></option>
+                        </select>
+                        <div class="invalid-feedback">Please select a course.</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="sessionId" class="form-label fw-semibold">
+                            <i class="bi bi-calendar me-2"></i>Session
+                        </label>
+                        <select class="form-select border-0 shadow-sm rounded-3" id="sessionId" name="sessionId" required>
+                            <option value="">Select Session</option>
+                            <option th:if="${material.session != null}"
+                                    th:value="${material.session.id}"
+                                    th:text="${material.session.name}"
+                                    selected></option>
+                        </select>
+                        <div class="invalid-feedback">Please select a session.</div>
+                    </div>
+
+                    <input type="hidden" id="currentSessionId" th:value="${material.session?.id ?: ''}" />
+
+                    <!-- Materials List -->
+                    <div id="materialsList" class="mb-4" style="max-height: 400px; overflow-y: auto;">
+                        <h5 class="mb-3">Materials</h5>
+                        <div class="materials-container">
+                            <!-- Material items will be added here dynamically -->
+                        </div>
+                        <button type="button" class="btn btn-outline-primary mt-3" onclick="addMaterialItem()">
+                            <i class="bi bi-plus-circle me-2"></i>Add Material
+                        </button>
+                    </div>
+
+                    <div class="d-flex justify-content-end mt-4 position-sticky bottom-0 bg-white p-3 border-top">
+                        <button type="submit" class="btn btn-primary px-4 me-3 shadow-lg rounded-3">
+                            <i class="bi bi-save me-2"></i>Save All Materials
+                        </button>
+                        <a th:href="@{/course-materials(courseId=${material.course?.id})}" class="btn btn-outline-secondary px-4 shadow-lg rounded-3">
+                            <i class="bi bi-arrow-left me-2"></i>Back to List
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        let materialCount = 0;
+
+        function addMaterialItem() {
+            const container = document.querySelector('.materials-container');
+            const materialDiv = document.createElement('div');
+            materialDiv.className = 'material-item card mb-3';
+            materialDiv.innerHTML = `
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="mb-0">Material #${materialCount + 1}</h6>
+                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeMaterialItem(this)">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Name</label>
+                            <input type="text" class="form-control" name="materials[${materialCount}].name"
+                                   required minlength="3" maxlength="100" pattern="^[a-zA-Z0-9\\s-]+$">
+                            <div class="invalid-feedback">
+                                Name must be 3-100 characters long and contain only letters, numbers, spaces, or hyphens.
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Type</label>
+                            <select class="form-select" name="materials[${materialCount}].type"
+                                    onchange="toggleFileInput(this)" required>
+                                <option value="">Select type</option>
+                                <option value="PDF">PDF</option>
+                                <option value="AUDIO">Audio</option>
+                                <option value="VIDEO">Video</option>
+                                <option value="YOUTUBE">YouTube</option>
+                                <option value="TEXT">Text</option>
+                            </select>
+                            <div class="invalid-feedback">Please select a material type.</div>
+                        </div>
+                    </div>
+                    <div class="file-inputs">
+                        <div class="text-input mb-3" style="display: none;">
+                            <label class="form-label">Text Content</label>
+                            <textarea class="form-control" name="materials[${materialCount}].description" rows="5" required></textarea>
+                            <div class="invalid-feedback">Please enter text content.</div>
+                        </div>
+                        <div class="pdf-input mb-3" style="display: none;">
+                            <label class="form-label">PDF File</label>
+                            <input type="file" class="form-control" name="pdfFiles" accept=".pdf" required>
+                            <div class="invalid-feedback">Please upload a PDF file.</div>
+                        </div>
+                        <div class="audio-input mb-3" style="display: none;">
+                            <label class="form-label">Audio File</label>
+                            <input type="file" class="form-control" name="audioFiles" accept=".mp3,.wav,.ogg" required>
+                            <div class="invalid-feedback">Please upload an audio file.</div>
+                        </div>
+                        <div class="video-input mb-3" style="display: none;">
+                            <label class="form-label">Video File</label>
+                            <input type="file" class="form-control" name="videoFiles" accept="video/*" required>
+                            <div class="invalid-feedback">Please upload a video file.</div>
+                        </div>
+                        <div class="youtube-input mb-3" style="display: none;">
+                            <label class="form-label">YouTube URL</label>
+                            <input type="url" class="form-control" name="materials[${materialCount}].youtubeUrl"
+                                   placeholder="https://www.youtube.com/watch?v=..."
+                                   pattern="^(https?://)?(www\\.)?(youtube\\.com|youtu\\.be)/.+$" required>
+                            <div class="invalid-feedback">Please enter a valid YouTube URL.</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.appendChild(materialDiv);
+            materialCount++;
+        }
+
+        function removeMaterialItem(button) {
+            button.closest('.material-item').remove();
+        }
+
+        function toggleFileInput(select) {
+            const materialItem = select.closest('.material-item');
+            const fileInputs = materialItem.querySelectorAll('.file-inputs > div');
+            fileInputs.forEach(div => {
+                div.style.display = 'none';
+                const input = div.querySelector('input, textarea');
+                if (input) input.required = false; // Remove required when hidden
+            });
+
+            const selectedType = select.value;
+            if (selectedType === 'TEXT') {
+                const textInput = materialItem.querySelector('.text-input');
+                textInput.style.display = 'block';
+                textInput.querySelector('textarea').required = true;
+            } else if (selectedType === 'PDF') {
+                const pdfInput = materialItem.querySelector('.pdf-input');
+                pdfInput.style.display = 'block';
+                pdfInput.querySelector('input').required = true;
+            } else if (selectedType === 'AUDIO') {
+                const audioInput = materialItem.querySelector('.audio-input');
+                audioInput.style.display = 'block';
+                audioInput.querySelector('input').required = true;
+            } else if (selectedType === 'VIDEO') {
+                const videoInput = materialItem.querySelector('.video-input');
+                videoInput.style.display = 'block';
+                videoInput.querySelector('input').required = true;
+            } else if (selectedType === 'YOUTUBE') {
+                const youtubeInput = materialItem.querySelector('.youtube-input');
+                youtubeInput.style.display = 'block';
+                youtubeInput.querySelector('input').required = true;
+            }
+        }
+
+        function loadSessions() {
+            const courseId = document.getElementById("courseId").value;
+            const sessionSelect = document.getElementById("sessionId");
+            const currentSessionId = document.getElementById("currentSessionId").value;
+
+            while (sessionSelect.options.length > 1) {
+                sessionSelect.remove(1);
+            }
+
+            if (courseId) {
+                fetch(`/course-materials/sessions-by-course/${courseId}`)
+                    .then(response => response.json())
+                    .then(sessions => {
+                        sessions.forEach(session => {
+                            const option = document.createElement("option");
+                            option.value = session.id;
+                            option.text = session.name;
+                            if (session.id == currentSessionId) {
+                                option.selected = true;
+                            }
+                            sessionSelect.appendChild(option);
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error loading sessions:', error);
+                        alert("Failed to load sessions. Please try again.");
+                    });
+            }
+        }
+
+        // Bootstrap form validation
+        document.addEventListener('DOMContentLoaded', function() {
+            const courseId = document.getElementById("courseId").value;
+            if (courseId) {
+                loadSessions();
+            }
+            addMaterialItem();
+
+            const form = document.querySelector('.needs-validation');
+            form.addEventListener('submit', function(event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            });
+        });
+    </script>
+</div>

@@ -1,0 +1,113 @@
+<div class="px-5" th:fragment="content" xmlns:th="http://www.w3.org/1999/xhtml">
+    <div class="container-fluid mt-5">
+        <div class="d-flex">
+            <div class="flex-grow-1">
+                <div class="card shadow-lg border-0 rounded-4">
+                    <div class="card-header bg-primary text-white rounded-top-4 d-flex align-items-center">
+                        <i class="bi bi-journal-text me-2 fs-4"></i>
+                        <h1 class="fw-bold mb-0">Create Training Program</h1>
+                    </div>
+                    <div class="card-body p-4" style="max-height: 470px; overflow-y: auto;">
+                        <form id="trainingProgramForm" th:action="@{/training-programs}" method="post"
+                              th:object="${trainingProgram}">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="programName" class="form-label fw-bold">
+                                        <i class="bi bi-bookmark me-1"></i> Program Name
+                                    </label>
+                                    <input type="text" class="form-control" id="programName"
+                                           th:field="*{programName}" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="programCode" class="form-label fw-bold">
+                                        <i class="bi bi-upc-scan me-1"></i> Program Code
+                                    </label>
+                                    <input type="text" class="form-control" id="programCode"
+                                           th:field="*{programCode}" required>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <!-- Content Link -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="contentLink" class="form-label fw-bold">
+                                        <i class="bi bi-link me-1"></i> Content Link
+                                    </label>
+                                    <input type="url" class="form-control" id="contentLink"
+                                           th:field="*{contentLink}">
+                                </div>
+                                <!-- Version -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="version" class="form-label fw-bold">
+                                        <i class="bi bi-tools me-1"></i> Version
+                                    </label>
+                                    <input type="number" class="form-control" id="version" step="0.1"
+                                           th:field="*{version}" min="0.0" max="7.0" required>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="description" class="form-label fw-bold">
+                                        <i class="bi bi-card-text me-1"></i> Description
+                                    </label>
+                                    <textarea class="form-control" id="description" th:field="*{description}"
+                                              rows=11></textarea>
+                                </div>
+
+                                <!-- Syllabus Selection -->
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold d-flex align-items-center">
+                                        <i class="bi bi-journals me-2"></i> Syllabuses
+                                    </label>
+                                    <div class="card shadow-sm border-0 rounded-3">
+                                        <div class="card-body">
+                                            <div class="input-group mb-3">
+                                                <i class="bi bi-search input-group-text bg-light border-0"></i>
+                                                <input type="text" class="form-control border-0 shadow-sm rounded-3"
+                                                       id="syllabusSearch" placeholder="Search syllabuses..."
+                                                       onkeyup="filterSyllabuses()">
+                                            </div>
+                                            <div class="border p-2 rounded bg-light" style="max-height: 200px; overflow-y: auto;">
+                                                <div id="syllabusList">
+                                                    <div th:each="syllabus : ${syllabuses}" class="syllabus-item p-2 rounded-2">
+                                                        <input type="checkbox" th:id="'syllabus_' + ${syllabus.id}"
+                                                               th:value="${syllabus.id}" name="syllabuses" class="syllabus-checkbox">
+                                                        <label th:for="'syllabus_' + ${syllabus.id}" class="ms-2"
+                                                               th:text="${syllabus.name}"></label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar Buttons -->
+            <div class="ms-4 p-2 d-flex flex-column align-items-stretch gap-2"
+                 style="width: 200px; min-height: 250px; border: 1px dashed #ccc;">
+                <button type="button" class="btn btn-primary btn-sm w-100" onclick="document.getElementById('trainingProgramForm').submit();">
+                    <i class="bi bi-save me-1"></i> Save
+                </button>
+                <a href="/training-programs" class="btn btn-secondary btn-sm w-100">
+                    <i class="bi bi-arrow-left me-1"></i> Back to List
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function filterSyllabuses() {
+            let input = document.getElementById('syllabusSearch').value.toLowerCase();
+            let items = document.querySelectorAll('.syllabus-item');
+            items.forEach(item => {
+                let text = item.querySelector('label').textContent.toLowerCase();
+                item.style.display = text.includes(input) ? 'block' : 'none';
+            });
+        }
+    </script>
+</div>

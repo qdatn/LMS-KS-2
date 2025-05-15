@@ -1,0 +1,25 @@
+
+.user-checkbox {
+    position: relative !important;
+}
+
+.modal-content {
+    border-radius: 0.5rem;
+}
+
+.modal-header {
+    border-bottom: 1px solid #e9ecef;
+    background-color: #f8f9fa;
+}
+
+.modal-footer {
+    border-top: 1px solid #e9ecef;
+    background-color: #f8f9fa;
+}
+.btn-control {
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
+}
+.btn-control:hover {
+    background-color: #e9ecef;
+}

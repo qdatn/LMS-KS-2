@@ -1,0 +1,95 @@
+<!--<div th:fragment="content">-->
+<!--    <div class="container-fluid mt-3">-->
+<!--        <h2 class="mt-5 mb-4 pb-2">My Learning Paths</h2>-->
+<!--        <div class="row" style="max-height: 100%; overflow-y: auto;">-->
+<!--            <div class="col-lg-3 col-md-4 col-sm-6 mb-4" th:each="learningPath : ${myLearningPaths}">-->
+<!--                <div class="card h-100">-->
+<!--                    <img th:src="@{/images/default-learning-path.png}" class="card-img-top w-100"-->
+<!--                         style="height: 150px; object-fit: cover;" alt="Learning Path Image">-->
+<!--                    <div class="card-body d-flex flex-column">-->
+<!--                        <h5 class="card-title" th:text="${learningPath.name}"></h5>-->
+<!--                        <p class="card-text" th:text="${learningPath.description}"></p>-->
+<!--                        <a th:href="@{/learning-paths/view/{id}(id=${learningPath.id})}" class="btn btn-outline-primary mt-auto">Detail</a>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--            <div th:if="${#lists.isEmpty(myLearningPaths)}" class="text-center text-muted py-5">-->
+<!--                <h4>You haven't enrolled in any learning paths yet.</h4>-->
+<!--            </div>-->
+<!--        </div>-->
+
+<!--        <h2 class="mt-5 mb-4 pb-2">Discover more Learning Paths</h2>-->
+<!--        <div class="row" style="max-height: 100%; overflow-y: auto;">-->
+<!--            <div class="col-lg-3 col-md-4 col-sm-6 mb-4" th:each="learningPath : ${discoverLearningPaths}">-->
+<!--                <div class="card h-100">-->
+<!--                    <img th:src="@{/images/default-learning-path.png}" class="card-img-top w-100"-->
+<!--                         style="height: 150px; object-fit: cover;" alt="Learning Path Image">-->
+<!--                    <div class="card-body d-flex flex-column">-->
+<!--                        <h5 class="card-title" th:text="${learningPath.name}"></h5>-->
+<!--                        <p class="card-text" th:text="${learningPath.description}"></p>-->
+<!--                        <div class="mt-auto">-->
+<!--                            <a th:href="@{/learning-paths/view/{id}(id=${learningPath.id})}" class="btn btn-outline-primary w-100 mb-2">Detail</a>-->
+<!--                            <a th:href="@{/learning-paths/enroll/{id}(id=${learningPath.id})}" class="btn btn-success w-100"-->
+<!--                               th:unless="${#lists.contains(myLearningPaths, learningPath)}">Enroll Now</a>-->
+<!--                            <span class="text-success mt-2" th:if="${#lists.contains(myLearningPaths, learningPath)}">Enrolled</span>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--            <div th:if="${#lists.isEmpty(discoverLearningPaths)}" class="text-center text-muted py-5">-->
+<!--                <h4>No other learning paths available.</h4>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</div>-->
+
+<div th:fragment="content">
+    <div class="container-fluid mt-3">
+        <!-- MY LEARNING PATHS -->
+        <h2 class="mt-5 mb-4 pb-2">My Learning Paths</h2>
+        <div class="row" style="max-height: 100%; overflow-y: auto;">
+            <div class="col-lg-3 col-md-4 col-sm-6 mb-4" th:each="learningPath : ${myLearningPaths}">
+                <div class="card h-100">
+                    <img th:src="${learningPath.image != null && !#strings.isEmpty(learningPath.image) ? learningPath.image : '/images/default-learning-path.png'}"
+                         class="card-img-top w-100"
+                         style="height: 150px; object-fit: cover;"
+                         alt="Learning Path Image">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title" th:text="${learningPath.name}"></h5>
+                        <p class="card-text" th:text="${learningPath.description}"></p>
+                        <a th:href="@{/learning-paths/view/{id}(id=${learningPath.id})}" class="btn btn-outline-primary mt-auto">Detail</a>
+                    </div>
+                </div>
+            </div>
+            <div th:if="${#lists.isEmpty(myLearningPaths)}" class="text-center text-muted py-5">
+                <h4>You haven't enrolled in any learning paths yet.</h4>
+            </div>
+        </div>
+
+        <!-- DISCOVER LEARNING PATHS -->
+        <h2 class="mt-5 mb-4 pb-2">Discover more Learning Paths</h2>
+        <div class="row" style="max-height: 100%; overflow-y: auto;">
+            <div class="col-lg-3 col-md-4 col-sm-6 mb-4" th:each="learningPath : ${discoverLearningPaths}">
+                <div class="card h-100">
+                    <img th:src="${learningPath.image != null && !#strings.isEmpty(learningPath.image) ? learningPath.image : '/images/default-learning-path.png'}"
+                         class="card-img-top w-100"
+                         style="height: 150px; object-fit: cover;"
+                         alt="Learning Path Image">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title" th:text="${learningPath.name}"></h5>
+                        <p class="card-text" th:text="${learningPath.description}"></p>
+                        <div class="mt-auto">
+                            <a th:href="@{/learning-paths/view/{id}(id=${learningPath.id})}" class="btn btn-outline-primary w-100 mb-2">Detail</a>
+                            <a th:href="@{/learning-paths/enroll/{id}(id=${learningPath.id})}" class="btn btn-success w-100"
+                               th:unless="${#lists.contains(myLearningPaths, learningPath)}">Enroll Now</a>
+                            <span class="text-success mt-2" th:if="${#lists.contains(myLearningPaths, learningPath)}">Enrolled</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div th:if="${#lists.isEmpty(discoverLearningPaths)}" class="text-center text-muted py-5">
+                <h4>No other learning paths available.</h4>
+            </div>
+        </div>
+    </div>
+</div>

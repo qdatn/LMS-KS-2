@@ -1,0 +1,35 @@
+<div style="height: 100%" th:fragment="smallSlidebar">
+  <div
+    class="d-flex flex-column flex-shrink-0 bg-dark h-100"
+    style="width: 100px; height: 100%"
+  >
+    <div class="small-sidebar-menu-container">
+      <ul class="nav flex-column bg-dark w-100">
+        <div class="small-sidebar-divider"></div>
+        <li class="nav-item" th:each="moduleGroup : ${moduleGroupsGlobal}">
+          <ul class="nav flex-column w-100">
+            <li
+              class="nav-item text-center"
+              th:each="module : ${moduleGroup.modules}"
+            >
+              <a
+                class="small-sidebar-nav-link text-light small-sidebar-link d-flex flex-column align-items-center gap-1 w-100 p-2 text-decoration-none"
+                th:href="@{${module.url.startsWith('/') ? module.url : '/' + module.url}}"
+                th:onclick="window.location.href=this.getAttribute('href'); return false;"
+                th:data-module-url="${module.url}"
+              >
+                <i th:class="${module.icon} + ' fs-5'"></i>
+                <span
+                  th:text="${module.name}"
+                  class="fs-7 small-sidebar-small-text"
+                ></span>
+              </a>
+            </li>
+          </ul>
+          <div class="small-sidebar-divider"></div>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <th:block th:replace="fragments/scripts :: menu-highlight-scripts"></th:block>
+</div>

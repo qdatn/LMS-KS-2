@@ -1,0 +1,19 @@
+<div class="px-5" th:fragment="content">
+    <div class="container mt-4">
+        <h2 class="text-center" th:text="${course.id == null ? 'Create Course' : 'Edit Course'}"></h2>
+
+        <form th:action="@{/courses/save}" th:object="${course}" method="post">
+            <input type="hidden" th:field="*{id}"/>
+
+            <div class="mb-3">
+                <label for="name" class="form-label">Course Name</label>
+                <input type="text" class="form-control" id="name" th:field="*{name}" required>
+            </div>
+
+            <div class="d-flex justify-content-between">
+                <a href="/courses" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-success">Save</button>
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,303 @@
+<div class="px-5" th:fragment="content" xmlns:th="http://www.w3.org/1999/xhtml">
+    <div class="container py-2">
+        <div class="col-12 text-center mb-4">
+            <h1 class="fw-bold">My Learning Paths</h1>
+        </div>
+
+        <div th:fragment="alerts" class="mb-4">
+            <div th:if="${success}" class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-check-circle fa-lg me-2"></i>
+                    <span th:text="${success}"></span>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <div th:if="${error}" class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-exclamation-circle fa-lg me-2"></i>
+                    <span th:text="${error}"></span>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+
+        <div class="card-body mb-3">
+            <div class="row align-items-center gy-3">
+                <div class="col-md-6 d-flex">
+                    <form th:action="@{/learning-paths/my-learning-paths}" method="get" class="input-group me-2">
+                        <input type="text" class="form-control" name="searchTerm" th:value="${searchTerm}"
+                               placeholder="Search by learning path name" aria-label="Learning Path search">
+                        <button type="submit" class="btn btn-sm btn-outline-secondary" aria-label="Search" title="Search">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </form>
+                    <button type="button" class="btn btn-sm btn-outline-secondary"
+                            onclick="window.location.href='/learning-paths/my-learning-paths'"
+                            title="Reload" aria-label="Reload my learning paths">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+
+                <div class="col-md-6 d-flex justify-content-end gap-2 flex-wrap">
+                    <a th:href="@{/learning-paths/export/my}" class="btn btn-outline-secondary" title="Export My Learning Paths">
+                        <i class="bi bi-file-earmark-excel"></i>
+                    </a>
+
+                    <a href="/learning-paths/print/my" class="btn btn-outline-secondary" title="Print My Learning Paths">
+                        <i class="bi bi-printer"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <ul class="nav nav-tabs mb-3">
+            <li class="nav-item">
+                <a class="nav-link" href="/learning-paths">Learning Paths</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" href="/learning-paths/my-learning-paths">My Learning Paths</a>
+            </li>
+        </ul>
+
+        <main th:switch="${#lists.isEmpty(myLearningPathPage.content)}">
+            <div th:case="false" class="card border-0 shadow-sm">
+                <div class="table-responsive text-center scrollable-table">
+                    <table class="table table-hover mb-0">
+                        <thead class="bg-light">
+                        <tr>
+                            <th scope="col" class="fw-semibold text-center"><input type="checkbox" id="selectAll"></th>
+                            <th scope="col" class="fw-semibold text-center">#</th>
+                            <th scope="col" class="fw-semibold text-start">Name</th>
+                            <th scope="col" class="fw-semibold text-start">Description</th>
+                            <th scope="col" class="fw-semibold text-start">Courses</th>
+                            <th scope="col" class="fw-semibold text-center">Actions</th>
+                        </tr>
+                        </thead>
+
+                        <tbody id="learningPathTableBody">
+                        <tr th:each="learningPath, iterStat : ${myLearningPathPage.content}">
+                            <td class="align-middle text-center"><input type="checkbox" class="selectItem" th:value="${learningPath.id}" /></td>
+                            <td th:text="${iterStat.count + (myLearningPathPage.number * myLearningPathPage.size)}" class="align-middle"></td>
+                            <td th:text="${learningPath.name}" class="align-middle fw-medium text-start"></td>
+                            <td th:text="${learningPath.description}" class="align-middle text-muted small text-start"></td>
+                            <td class="align-middle text-start">
+<!--                                <th:block th:each="course : ${learningPath.courses}">-->
+<!--                                    <span th:text="${course.name}"></span><br/>-->
+<!--                                </th:block>-->
+<!--                                <span th:if="${#lists.isEmpty(learningPath.courses)}">No courses</span>-->
+                                <th:block th:each="courseWithOrder : ${learningPathCoursesWithOrder.get(learningPath.id)}">
+                                    <span th:text="${courseWithOrder.orderNumber}"></span>.
+                                    <span th:text="${courseWithOrder.course.name}"></span><br/>
+                                </th:block>
+                                <span th:if="${#lists.isEmpty(learningPathCoursesWithOrder.get(learningPath.id))}">No courses</span>
+                            </td>
+                            <td class="text-center align-middle">
+                                <div class="d-flex justify-content-center gap-2">
+                                    <a th:href="@{/learning-paths/view/{id}(id=${learningPath.id})}" class="btn btn-sm btn-outline-secondary" title="View" aria-label="View">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-outline-danger" title="Unenroll"
+                                            data-bs-toggle="modal" data-bs-target="#unenrollModal"
+                                            th:data-id="${learningPath.id}">
+                                        <i class="fas fa-times-circle"></i> Unenroll
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="d-flex align-items-center justify-content-between mt-3">
+                    <div class="d-flex align-items-center">
+                        <button id="deleteAll" class="btn btn-danger me-3" data-bs-toggle="modal" data-bs-target="#deleteAllModal" disabled>
+                            <i class="fas fa-times-circle"></i>
+                            <span>Unenroll Selected (<span id="selectedCount">0</span>)</span>
+                        </button>
+                        <span class="text-muted">Total Records: <strong th:text="${myLearningPathPage.totalElements}">0</strong></span>
+                    </div>
+
+                    <nav aria-label="My Learning Path pagination" th:if="${myLearningPathPage.totalPages > 1}">
+                        <ul class="pagination justify-content-end mb-0" id="pagination">
+                            <li class="page-item" th:classappend="${myLearningPathPage.first} ? 'disabled'">
+                                <a class="page-link" th:href="@{/learning-paths/my-learning-paths(page=0, size=${pageSize}, searchTerm=${searchTerm})}"
+                                   data-page="0" aria-label="First"><i class="bi bi-chevron-double-left"></i></a>
+                            </li>
+                            <li class="page-item" th:classappend="${myLearningPathPage.first} ? 'disabled'">
+                                <a class="page-link" th:href="@{/learning-paths/my-learning-paths(page=${myLearningPathPage.number - 1}, size=${pageSize}, searchTerm=${searchTerm})}"
+                                   th:data-page="${myLearningPathPage.number - 1}" aria-label="Previous"><i class="bi bi-chevron-left"></i></a>
+                            </li>
+                            <li th:each="i : ${#numbers.sequence(T(java.lang.Math).max(0, myLearningPathPage.number - 2), T(java.lang.Math).min(myLearningPathPage.totalPages - 1, myLearningPathPage.number + 2))}"
+                                th:classappend="${i == myLearningPathPage.number} ? 'active'">
+                                <a class="page-link" th:href="@{/learning-paths/my-learning-paths(page=${i}, size=${pageSize}, searchTerm=${searchTerm})}"
+                                   th:data-page="${i}" th:text="${i + 1}"></a>
+                            </li>
+                            <li class="page-item" th:classappend="${myLearningPathPage.last} ? 'disabled'">
+                                <a class="page-link" th:href="@{/learning-paths/my-learning-paths(page=${myLearningPathPage.number + 1}, size=${pageSize}, searchTerm=${searchTerm})}"
+                                   th:data-page="${myLearningPathPage.number + 1}" aria-label="Next"><i class="bi bi-chevron-right"></i></a>
+                            </li>
+                            <li class="page-item" th:classappend="${myLearningPathPage.last} ? 'disabled'">
+                                <a class="page-link" th:href="@{/learning-paths/my-learning-paths(page=${myLearningPathPage.totalPages - 1}, size=${pageSize}, searchTerm=${searchTerm})}"
+                                   th:data-page="${myLearningPathPage.totalPages - 1}" aria-label="Last"><i class="bi bi-chevron-double-right"></i></a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+
+            <div th:case="true" class="card border-0 shadow-sm p-4 text-center">
+                <div class="py-5">
+                    <i class="fas fa-bookmark fa-3x text-muted mb-3"></i>
+                    <h5>No Learning Paths Enrolled</h5>
+                    <p class="text-muted">You haven't enrolled in any learning paths yet.</p>
+                    <a href="/learning-paths" class="btn btn-outline-primary mt-2">
+                        <i class="fas fa-list me-1"></i> Browse Learning Paths
+                    </a>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="modal fade" id="deleteAllModal" tabindex="-1" aria-labelledby="deleteAllModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteAllModalLabel">Confirm Unenrollment</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to unenroll from <span id="deleteCount">0</span> selected learning path(s)?
+                </div>
+                <div class="modal-footer">
+                    <form id="deleteAllForm" th:action="@{/learning-paths/my-learning-paths/delete-all}" method="post">
+                        <input type="hidden" name="ids" id="deleteAllIds">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger">Unenroll</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="unenrollModal" tabindex="-1" aria-labelledby="unenrollModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="unenrollModalLabel">Confirm Unenrollment</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to unenroll from this learning path?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form id="unenrollForm" method="post">
+                        <button type="submit" class="btn btn-danger">Unenroll</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const selectAllCheckbox = document.getElementById('selectAll');
+            const itemCheckboxes = document.querySelectorAll('.selectItem');
+            const deleteAllButton = document.getElementById('deleteAll');
+            const deleteAllModal = document.getElementById('deleteAllModal');
+            const selectedCount = document.getElementById('selectedCount');
+            const deleteCount = document.getElementById('deleteCount');
+            const deleteAllForm = document.getElementById('deleteAllForm');
+            const deleteAllIdsInput = document.getElementById('deleteAllIds');
+            const learningPathTableBody = document.getElementById('learningPathTableBody');
+            const unenrollModal = document.getElementById('unenrollModal');
+            const unenrollForm = document.getElementById('unenrollForm');
+
+            function updateDeleteButton() {
+                const checkedCount = [...itemCheckboxes].filter(cb => cb.checked).length;
+                selectedCount.textContent = checkedCount;
+                deleteAllButton.disabled = checkedCount === 0;
+            }
+
+            selectAllCheckbox.addEventListener('change', () => {
+                itemCheckboxes.forEach(cb => cb.checked = selectAllCheckbox.checked);
+                updateDeleteButton();
+            });
+
+            itemCheckboxes.forEach(cb => {
+                cb.addEventListener('change', updateDeleteButton);
+            });
+
+            deleteAllModal.addEventListener('show.bs.modal', (event) => {
+                const selectedIds = [...itemCheckboxes]
+                    .filter(cb => cb.checked)
+                    .map(cb => cb.value);
+
+                if (selectedIds.length === 0) {
+                    event.preventDefault();
+                    alert('Please select at least one learning path to unenroll from.');
+                    return;
+                }
+
+                deleteCount.textContent = selectedIds.length;
+                deleteAllIdsInput.value = JSON.stringify(selectedIds);
+            });
+
+            deleteAllForm.addEventListener('submit', (event) => {
+                event.preventDefault();
+                const selectedIds = JSON.parse(deleteAllIdsInput.value);
+
+                fetch('/learning-paths/my-learning-paths/delete-all', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ ids: selectedIds })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to unenroll from learning paths');
+                    }
+                    return response.text();
+                })
+                .then(() => {
+                    window.location.reload();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while unenrolling from learning paths: ' + error.message);
+                });
+            });
+
+            deleteAllModal.addEventListener('hidden.bs.modal', () => {
+                deleteCount.textContent = '0';
+                deleteAllIdsInput.value = '';
+            });
+
+            if (unenrollModal) {
+                unenrollModal.addEventListener('show.bs.modal', event => {
+                    const button = event.relatedTarget;
+                    const id = button.getAttribute('data-id');
+                    unenrollForm.action = `/learning-paths/my-learning-paths/delete/${id}`;
+                });
+
+                unenrollForm.addEventListener('submit', event => {
+                    // Không cần fetch ở đây vì form submit sẽ reload trang
+                });
+            }
+
+            updateDeleteButton();
+
+            const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+            tooltipTriggerList.forEach(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+
+            learningPathTableBody.addEventListener('change', (event) => {
+                if (event.target.classList.contains('selectItem')) {
+                    const allChecked = [...itemCheckboxes].every(cb => cb.checked);
+                    selectAllCheckbox.checked = allChecked;
+                    updateDeleteButton();
+                }
+            });
+        });
+    </script>
+</div>

@@ -1,0 +1,234 @@
+<div class="px-3" th:fragment="content" xmlns:th="http://www.thymeleaf.org">
+    <div class="container-fluid py-3">
+        <!-- Page Header -->
+        <div class="row mb-3">
+            <div class="col-12">
+                <div class="bg-primary bg-gradient text-white p-3 rounded-3">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-id-card fa-lg me-2"></i>
+                            <h4 class="mb-0">Issue Student Card</h4>
+                        </div>
+                        <div>
+                            <span class="badge bg-light text-primary" id="internalID">ID: ?</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="row">
+            <!-- Left: Student Information (scrollable) -->
+            <div class="col-md-6 mb-3 mb-md-0">
+                <div class="h-100 p-3 bg-light rounded-3 overflow-auto" style="max-height: 68vh;">
+                    <h6 class="mb-3">
+                        <i class="fas fa-user text-primary me-2"></i>Student Information
+                    </h6>
+
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item bg-transparent px-0 py-2 d-flex justify-content-between">
+                            <span class="text-muted small">Student Code:</span>
+                            <span class="fw-medium" id="studentCode">-</span>
+                        </div>
+                        <div class="list-group-item bg-transparent px-0 py-2 d-flex justify-content-between">
+                            <span class="text-muted small">First Name:</span>
+                            <span class="fw-medium" id="firstName">-</span>
+                        </div>
+                        <div class="list-group-item bg-transparent px-0 py-2 d-flex justify-content-between">
+                            <span class="text-muted small">Last Name:</span>
+                            <span class="fw-medium" id="lastName">-</span>
+                        </div>
+                        <div class="list-group-item bg-transparent px-0 py-2 d-flex justify-content-between">
+                            <span class="text-muted small">Full Name:</span>
+                            <span class="fw-medium" id="fullName">-</span>
+                        </div>
+                        <div class="list-group-item bg-transparent px-0 py-2 d-flex justify-content-between">
+                            <span class="text-muted small">Phone Number:</span>
+                            <span class="fw-medium" id="phoneNumber">-</span>
+                        </div>
+                        <div class="list-group-item bg-transparent px-0 py-2 d-flex justify-content-between">
+                            <span class="text-muted small">Address:</span>
+                            <span class="fw-medium" id="address">-</span>
+                        </div>
+                    </div>
+
+                    <h6 class="mb-3 mt-3">
+                        <i class="fas fa-id-card text-primary me-2"></i>Account Information
+                    </h6>
+
+                    <div class="list-group list-group-flush">
+                        <div
+                            class="list-group-item bg-transparent px-0 py-2 d-flex justify-content-between align-items-center">
+                            <span class="text-muted small"><i class="fas fa-envelope me-2"></i>Email:</span>
+                            <span class="fw-medium" id="email">-</span>
+                        </div>
+                        <div
+                            class="list-group-item bg-transparent px-0 py-2 d-flex justify-content-between align-items-center">
+                            <span class="text-muted small"><i class="fas fa-at me-2"></i>Username:</span>
+                            <span class="fw-medium" id="username">-</span>
+                        </div>
+                    </div>
+
+                    <h6 class="mb-3 mt-3">
+                        <i class="fas fa-shield-alt text-primary me-2"></i>Security Settings
+                    </h6>
+
+                    <div class="list-group list-group-flush">
+                        <div
+                            class="list-group-item bg-transparent px-0 py-2 d-flex justify-content-between align-items-center">
+                            <span class="text-muted small">Two-Factor Authentication:</span>
+                            <span class="fw-medium">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" disabled id="2faSwitch">
+                                    <label class="form-check-label" id="is2faEnabled">-</label>
+                                </div>
+                            </span>
+                        </div>
+                        <div
+                            class="list-group-item bg-transparent px-0 py-2 d-flex justify-content-between align-items-center">
+                            <span class="text-muted small">Account Lock Status:</span>
+                            <span class="fw-medium">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" disabled id="lockSwitch">
+                                    <label class="form-check-label" id="isLocked">-</label>
+                                </div>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Create Card Form -->
+            <div class="col-md-6">
+                <form action="/students/issue-card" method="post"
+                    class="h-100 p-3 bg-light rounded-3 d-flex flex-column">
+                    <h6 class="mb-3">
+                        <i class="fas fa-plus-circle text-primary me-2"></i>Create Student Card
+                    </h6>
+
+                    <input type="hidden" name="studentId" th:value="${student.id}" />
+
+                    <div class="mb-3">
+                        <label for="cardNumber" class="form-label small">Card Number</label>
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text"><i class="bi bi-credit-card"></i></span>
+                            <input type="text" class="form-control" id="cardNumber" name="cardNumber"
+                                placeholder="Enter card number" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="badgeTitle" class="form-label small">Badge Holder Title</label>
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text"><i class="bi bi-award"></i></span>
+                            <input type="text" class="form-control" id="badgeTitle" name="badgeTitle"
+                                placeholder="Enter badge title" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="issueDate" class="form-label small">Issue Date</label>
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text"><i class="bi bi-calendar-date"></i></span>
+                            <input type="date" class="form-control" id="issueDate" name="issueDate" required>
+                        </div>
+                    </div>
+
+                    <!-- Các nút sẽ nằm dưới cùng -->
+                    <div class="d-flex justify-content-end mt-auto pt-3">
+                        <a th:href="@{/students}" class="btn btn-secondary btn-sm me-2">
+                            <i class="fas fa-arrow-left me-1"></i>Back To List
+                        </a>
+                        <button type="button" class="btn btn-primary btn-sm" id="saveCardBtn">
+                            <i class="fas fa-save me-1"></i>Save Card
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- AJAX Script -->
+    <script>
+        $(document).ready(function () {
+            const today = new Date();
+            const formattedDate = today.toISOString().split('T')[0];
+
+            const urlParts = window.location.pathname.split('/');
+            const id = urlParts[urlParts.length - 1];
+
+            $("#saveCardBtn").click(function () {
+                createStudentCard(id);
+            });
+
+            $.ajax({
+                url: `/api/students/${id}`,
+                method: 'GET',
+                success: function (student) {
+                    $('#internalID').text('ID: ' + student.id);
+                    $('#studentCode').text(student.studentCode || '-');
+                    $('#firstName').text(student.firstName || '-');
+                    $('#lastName').text(student.lastName || '-');
+                    $('#fullName').text((student.firstName || '') + ' ' + (student.lastName || ''));
+                    $('#email').text(student.email || '-');
+                    $('#username').text(student.username || '-');
+                    $('#phoneNumber').text(student.phoneNumber || '-');
+                    $('#address').text(student.address || '-');
+
+                    $('#is2faEnabled').text(student.is2faEnabled ? 'Enabled' : 'Disabled');
+                    $('#2faSwitch').prop('checked', student.is2faEnabled);
+
+                    $('#isLocked').text(student.isLocked ? 'Locked' : 'Unlocked');
+                    $('#lockSwitch').prop('checked', student.isLocked);
+
+                    // Set Card Info
+                    $('#cardNumber').val(student.cardNumber || '');
+                    $('#badgeTitle').val(student.badgeHolderTitle || '');
+
+                    if (student.issuedAt) {
+                        $('#issueDate').val(new Date(student.issuedAt).toISOString().split('T')[0]);
+                    } else {
+                        $('#issueDate').val(formattedDate); // nếu chưa có ngày cấp thì gán hôm nay
+                    }
+                },
+                error: function () {
+                    $('.container').prepend(`
+                <div class="alert alert-danger d-flex align-items-center" role="alert">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    Failed to load student details.
+                </div>
+            `);
+                }
+            });
+        });
+    </script>
+
+    <script>
+        function createStudentCard(id) {
+            const cardData = {
+                cardNumber: $("#cardNumber").val(),
+                badgeHolderTitle: $("#badgeTitle").val(),
+                issuedAt: $("#issueDate").val()
+            };
+
+            $.ajax({
+                url: `/api/students/${id}/create-card`,
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(cardData),
+                success: function (response) {
+                    alert("Card created successfully!");
+                    console.log(response);
+                    window.location.href = "/students";
+                },
+                error: function (xhr) {
+                    alert("Failed to create card: " + xhr.responseText);
+                }
+            });
+        }
+    </script>
+</div>

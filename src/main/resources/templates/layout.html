@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="fragments/header :: header"> </head>
+  <body>
+    <div th:replace="fragments/navbar :: navbar"></div>
+    <div
+      class="container-fluid"
+      style="height: calc(100vh - 60px); overflow-y: hidden"
+    >
+      <div class="row w-100 flex-nowrap h-100">
+        <!-- Sidebar lớn -->
+        <div
+          class="col-md-3 col-lg-2 px-0 h-100"
+          id="slidebar"
+          style="height: 100%"
+        >
+          <div th:replace="fragments/slidebar :: slidebar"></div>
+        </div>
+
+        <!-- Sidebar nhỏ -->
+        <div
+          class="col-md-2 col-lg-1 px-0 d-none h-100"
+          id="smallSlidebar"
+          style="height: 100%"
+        >
+          <div th:replace="fragments/smallSlidebar :: smallSlidebar"></div>
+        </div>
+
+        <!-- Main content -->
+        <main
+          class="col px-0 main-content h-100"
+          id="mainContent"
+          style="overflow-y: auto; height: 100%"
+        >
+          <div th:replace="fragments/breadcrumb :: breadcrumb"></div>
+          <div style="height: 100%" th:replace="~{${content} :: content}"></div>
+          <div class="floating-chatbot-container"
+               id="floating-chatbot-container"
+               th:data-content-path="${content}">
+            <div th:replace="fragments/floating-chatbot :: floating-chatbot"></div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <script th:replace="~{fragments/scripts :: menu-scripts}"></script>
+    <script src="/js/layout.js"></script>
+  </body>
+</html>

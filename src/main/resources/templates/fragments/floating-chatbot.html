@@ -1,0 +1,61 @@
+<div th:fragment="floating-chatbot">
+  <link rel="stylesheet" href="/css/chatbots/floating-chatbot.css">
+
+  <!-- Chatbot container - isolated from page flow -->
+  <div class="chatbot-system">
+    <!-- Chatbot Trigger Button -->
+    <button id="floatingChatbotTrigger" class="chatbot-trigger">
+      <i class="bi bi-chat-dots-fill"></i>
+    </button>
+
+    <!-- Chatbot Dialog -->
+    <div id="floatingChatbotDialog" class="chatbot-dialog">
+      <div class="chatbot-header">
+        <div class="d-flex align-items-center">
+          <i class="bi bi-headset fs-4 me-2 text-primary"></i>
+          <h5 class="m-0 fw-bold text-primary">IT Education Assistant</h5>
+          <button id="minimizeFloatingChatbot" class="btn btn-sm ms-auto">
+            <i class="bi bi-dash-lg"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="chatbot-container">
+        <div class="chat-messages flex-grow-1 overflow-auto p-3 bg-light message-scrollable" id="floatingChatMessages">
+          <div class="welcome-message text-center my-3" id="floatingWelcomeMessage">
+            <h5 class="fw-bold">Welcome to IT Education Assistant</h5>
+          </div>
+        </div>
+
+        <div class="floating-chat-input-container">
+          <div class="chat-input">
+            <div class="input-group mb-2">
+              <input type="text" id="floatingChatInput" class="form-control" placeholder="Ask me anything about IT education...">
+            </div>
+
+            <div class="d-flex justify-content-between">
+              <div class="input-group-prepend">
+                <button id="floatingUploadBtn" class="btn btn-light btn-sm" type="button" title="Upload File">
+                  <i class="bi bi-paperclip"></i>
+                </button>
+              </div>
+              <input type="file" id="floatingFileInput" style="display: none;" multiple>
+
+              <button id="floatingChatSendBtn" class="btn btn-primary btn-sm">
+                <i class="bi bi-send-fill"></i>
+              </button>
+            </div>
+
+            <div id="floatingUploadPreview" class="d-flex flex-wrap gap-2 mt-2" style="display: none;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- External dependencies -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+  <script src="/js/chatbots/floating-chatbot.js"></script>
+</div>

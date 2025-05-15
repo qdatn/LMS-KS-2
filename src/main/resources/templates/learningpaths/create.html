@@ -1,0 +1,257 @@
+<!--<div class="px-5" th:fragment="content" xmlns:th="http://www.w3.org/1999/xhtml">-->
+<!--    <div class="container mt-5">-->
+<!--        <div class="card shadow-lg border-0 rounded-4">-->
+<!--            <div class="card-header bg-primary text-white rounded-top-4 d-flex align-items-center">-->
+<!--                <i class="bi bi-signpost-2 me-2 fs-4"></i>-->
+<!--                <h1 class="mb-0 fw-bold">Add Learning Path</h1>-->
+<!--            </div>-->
+
+<!--            <div class="card-body">-->
+<!--                <div th:if="${error}" class="alert alert-danger d-flex align-items-center" role="alert">-->
+<!--                    <i class="bi bi-exclamation-triangle me-2"></i>-->
+<!--                    <span th:text="${error}"></span>-->
+<!--                </div>-->
+
+<!--                <form th:action="@{/learning-paths/create}" method="post" th:object="${learningPath}" onsubmit="return validateForm()">-->
+<!--                    <div class="mb-4">-->
+<!--                        <label for="name" class="form-label fw-semibold">-->
+<!--                            <i class="bi bi-tag me-2"></i>Learning Path Name-->
+<!--                        </label>-->
+<!--                        <input type="text" class="form-control border-0 shadow-sm rounded-3" id="name" th:field="*{name}"-->
+<!--                               placeholder="Enter learning path name" maxlength="200" required>-->
+<!--                    </div>-->
+
+<!--                    <div class="mb-4">-->
+<!--                        <label for="description" class="form-label fw-semibold">-->
+<!--                            <i class="bi bi-file-text me-2"></i>Description-->
+<!--                        </label>-->
+<!--                        <textarea class="form-control border-0 shadow-sm rounded-3" id="description" th:field="*{description}"-->
+<!--                                  placeholder="Enter description" rows="3" maxlength="600" required></textarea>-->
+<!--                    </div>-->
+
+<!--                    <div class="mb-4">-->
+<!--                        <div class="card shadow-sm border-0 rounded-3">-->
+<!--                            <div class="card-header bg-dark text-white rounded-top-3 d-flex align-items-center">-->
+<!--                                <i class="bi bi-journal-bookmark me-2"></i>-->
+<!--                                <h5 class="mb-0">Courses</h5>-->
+<!--                            </div>-->
+<!--                            <div class="card-body">-->
+<!--                                <div class="input-group mb-3">-->
+<!--                                    <i class="bi bi-search input-group-text bg-light border-0"></i>-->
+<!--                                    <input type="text" class="form-control border-0 shadow-sm rounded-3" id="courseSearch"-->
+<!--                                           placeholder="Search courses..." onkeyup="filterCourses()">-->
+<!--                                </div>-->
+<!--                                <div class="mb-2">-->
+<!--                                    <input type="checkbox" id="selectAllCourses" onclick="toggleSelectAll('course')">-->
+<!--                                    <label for="selectAllCourses" class="fw-bold">Select All Courses</label>-->
+<!--                                </div>-->
+<!--                                <div class="border p-2 rounded bg-light" style="max-height: 300px; overflow-y: auto;">-->
+<!--                                    <div id="courseList">-->
+<!--                                        <div th:each="course : ${courses}" class="course-item p-2 rounded-2 hover-effect">-->
+<!--                                            <input type="checkbox" th:id="'course_' + ${course.id}" name="selectedCourses" th:value="${course.id}" class="course-checkbox">-->
+<!--                                            <label th:for="'course_' + ${course.id}" class="ms-2" th:text="${course.name}"></label>-->
+<!--                                        </div>-->
+<!--                                    </div>-->
+<!--                                </div>-->
+<!--                                <div class="text-danger mt-2" id="courseSelectionError" style="display: none;">Please select at least one course.</div>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+
+<!--                    <div class="d-flex justify-content-end mt-4">-->
+<!--                        <button type="submit" class="btn btn-primary px-4 me-3 shadow-lg rounded-3">-->
+<!--                            <i class="bi bi-save me-2"></i>Save-->
+<!--                        </button>-->
+<!--                        <a th:href="@{/learning-paths}" class="btn btn-outline-secondary px-4 shadow-lg rounded-3">-->
+<!--                            <i class="bi bi-arrow-left me-2"></i>Back to List-->
+<!--                        </a>-->
+<!--                    </div>-->
+<!--                </form>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--    <script>-->
+<!--        function toggleSelectAll(type) {-->
+<!--            let selectAllCheckbox = document.getElementById(`selectAll${capitalizeFirstLetter(type)}s`);-->
+<!--            let checkboxes = document.querySelectorAll(`.${type}-checkbox`);-->
+
+<!--            checkboxes.forEach(checkbox => {-->
+<!--                checkbox.checked = selectAllCheckbox.checked;-->
+<!--            });-->
+<!--        }-->
+
+<!--        function filterCourses() {-->
+<!--            let searchInput = document.getElementById('courseSearch').value.toLowerCase();-->
+<!--            let courseItems = document.querySelectorAll('.course-item');-->
+
+<!--            courseItems.forEach(item => {-->
+<!--                let courseName = item.querySelector('label').textContent.toLowerCase();-->
+
+<!--                if (courseName.includes(searchInput)) {-->
+<!--                    item.style.display = "block";-->
+<!--                } else {-->
+<!--                    item.style.display = "none";-->
+<!--                }-->
+<!--            });-->
+<!--        }-->
+
+<!--        function capitalizeFirstLetter(string) {-->
+<!--            return string.charAt(0).toUpperCase() + string.slice(1);-->
+<!--        }-->
+
+<!--        function validateForm() {-->
+<!--            let coursesSelected = document.querySelectorAll('.course-checkbox:checked').length;-->
+
+<!--            if (coursesSelected === 0) {-->
+<!--                document.getElementById('courseSelectionError').style.display = 'block';-->
+<!--                return false;-->
+<!--            } else {-->
+<!--                document.getElementById('courseSelectionError').style.display = 'none';-->
+<!--                return true;-->
+<!--            }-->
+<!--        }-->
+<!--    </script>-->
+<!--</div>-->
+<div class="px-5" th:fragment="content" xmlns:th="http://www.w3.org/1999/xhtml">
+    <div class="container mt-5">
+        <div class="card shadow-lg border-0 rounded-4">
+            <div class="card-header bg-primary text-white rounded-top-4 d-flex align-items-center">
+                <i class="bi bi-signpost-2 me-2 fs-4"></i>
+                <h1 class="mb-0 fw-bold">Add Learning Path</h1>
+            </div>
+
+            <div class="card-body">
+                <div th:if="${error}" class="alert alert-danger d-flex align-items-center" role="alert">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    <span th:text="${error}"></span>
+                </div>
+
+                <form th:action="@{/learning-paths/create}" method="post" th:object="${learningPath}" onsubmit="updateCourseOrder()">
+                    <div class="mb-4">
+                        <label for="name" class="form-label fw-semibold">
+                            <i class="bi bi-tag me-2"></i>Learning Path Name
+                        </label>
+                        <input type="text" class="form-control border-0 shadow-sm rounded-3" id="name" th:field="*{name}"
+                               placeholder="Enter learning path name" maxlength="200" required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="description" class="form-label fw-semibold">
+                            <i class="bi bi-file-text me-2"></i>Description
+                        </label>
+                        <textarea class="form-control border-0 shadow-sm rounded-3" id="description" th:field="*{description}"
+                                  placeholder="Enter description" rows="3" maxlength="600" required></textarea>
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="card shadow-sm border-0 rounded-3">
+                            <div class="card-header bg-dark text-white rounded-top-3 d-flex align-items-center">
+                                <i class="bi bi-journal-bookmark me-2"></i>
+                                <h5 class="mb-0">Courses</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="input-group mb-3">
+                                    <i class="bi bi-search input-group-text bg-light border-0"></i>
+                                    <input type="text" class="form-control border-0 shadow-sm rounded-3" id="courseSearch"
+                                           placeholder="Search courses..." onkeyup="filterCourses()">
+                                </div>
+                                <div class="mb-2">
+                                    <input type="checkbox" id="selectAllCourses" onclick="toggleSelectAll('course')">
+                                    <label for="selectAllCourses" class="fw-bold">Select All Courses</label>
+                                </div>
+                                <div class="border p-2 rounded bg-light" style="max-height: 300px; overflow-y: auto;">
+                                    <div id="courseList">
+                                        <div th:each="course : ${courses}" class="course-item p-2 rounded-2 hover-effect d-flex align-items-center">
+                                            <input type="checkbox" th:id="'course_' + ${course.id}" name="selectedCourses" th:value="${course.id}" class="course-checkbox" onchange="updateSelectedOrder(this)">
+                                            <label th:for="'course_' + ${course.id}" class="ms-2" th:text="${course.name}"></label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-danger mt-2" id="courseSelectionError" style="display: none;">Please select at least one course.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <input type="hidden" id="courseOrder" name="courseOrder">
+
+                    <div class="d-flex justify-content-end mt-4">
+                        <button type="submit" class="btn btn-primary px-4 me-3 shadow-lg rounded-3">
+                            <i class="bi bi-save me-2"></i>Save
+                        </button>
+                        <a th:href="@{/learning-paths}" class="btn btn-outline-secondary px-4 shadow-lg rounded-3">
+                            <i class="bi bi-arrow-left me-2"></i>Back to List
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        let selectedCourseOrder = [];
+
+        function toggleSelectAll(type) {
+            let selectAllCheckbox = document.getElementById(`selectAll${capitalizeFirstLetter(type)}s`);
+            let checkboxes = document.querySelectorAll(`.${type}-checkbox`);
+
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = selectAllCheckbox.checked;
+                updateSelectedOrder(checkbox);
+            });
+            updateSubmitButtonState();
+        }
+
+        function filterCourses() {
+            let searchInput = document.getElementById('courseSearch').value.toLowerCase();
+            let courseItems = document.querySelectorAll('.course-item');
+
+            courseItems.forEach(item => {
+                let courseName = item.querySelector('label').textContent.toLowerCase();
+
+                if (courseName.includes(searchInput)) {
+                    item.style.display = "flex";
+                } else {
+                    item.style.display = "none";
+                }
+            });
+        }
+
+        function capitalizeFirstLetter(string) {
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        }
+
+        function updateSelectedOrder(checkbox) {
+            const courseId = checkbox.value;
+            if (checkbox.checked) {
+                if (!selectedCourseOrder.includes(courseId)) {
+                    selectedCourseOrder.push(courseId);
+                }
+            } else {
+                selectedCourseOrder = selectedCourseOrder.filter(id => id !== courseId);
+            }
+            updateSubmitButtonState();
+        }
+
+        function updateCourseOrder() {
+            document.getElementById('courseOrder').value = JSON.stringify(selectedCourseOrder);
+            return validateForm();
+        }
+
+        function validateForm() {
+            let coursesSelected = document.querySelectorAll('.course-checkbox:checked').length;
+            document.getElementById('courseSelectionError').style.display = coursesSelected === 0 ? 'block' : 'none';
+            return coursesSelected > 0;
+        }
+
+        function updateSubmitButtonState() {
+            const coursesSelected = document.querySelectorAll('.course-checkbox:checked').length;
+            const saveButton = document.querySelector('button[type="submit"]');
+            if (saveButton) {
+                saveButton.disabled = coursesSelected === 0;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateSubmitButtonState(); // Initial state of the submit button
+        });
+    </script>
+</div>

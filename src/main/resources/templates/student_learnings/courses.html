@@ -1,0 +1,157 @@
+<div th:fragment="content">
+    <div class="container-fluid mt-3">
+        <!-- Search bar -->
+        <div class="bg-light py-5">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-md-10 col-lg-8 text-center">
+                        <h1 class="mb-4 fw-bold">Discover Courses</h1>
+                        <form th:action="@{/student/courses}" method="get" class="d-flex justify-content-center">
+                            <div class="input-group input-group-lg w-100 rounded-pill overflow-hidden border border-primary"
+                                 style="max-width: 500px;"> <!-- Giảm max-width từ 700px xuống 500px -->
+                                <input
+                                        type="text"
+                                        name="search"
+                                        class="form-control border-0 shadow-none"
+                                        placeholder="Discover more courses..."
+                                        th:value="${param.search}">
+                                <button
+                                        type="submit"
+                                        class="btn btn-primary px-4">
+                                    Search
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Navbar -->
+        <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
+            <div class="container">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 w-100 justify-content-between">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" th:classappend="${activeTab == null || activeTab == 'allCourses' ? 'active' : ''}"
+                           th:onclick="'setActiveTab(\'allCourses\')'">All Courses</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" th:classappend="${activeTab == 'certifications' ? 'active' : ''}"
+                           th:onclick="'setActiveTab(\'certifications\')'">Certifications</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" th:classappend="${activeTab == 'archived' ? 'active' : ''}"
+                           th:onclick="'setActiveTab(\'archived\')'">Archived</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" th:classappend="${activeTab == 'learningTools' ? 'active' : ''}"
+                           th:onclick="'setActiveTab(\'learningTools\')'">Learning Tools</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Content Area: Only one section is rendered based on activeTab -->
+        <div id="content-area">
+
+            <!-- All Courses (Default) -->
+            <div th:if="${activeTab == null || activeTab == 'allCourses'}">
+                <!-- Recently Learned Courses -->
+                <h3 class="mt-5 mb-4 pb-2">Recently Learned Courses</h3>
+                <div th:if="${#lists.isEmpty(recentCourses)}" class="text-center text-muted py-5">
+                    <h4>No recently courses found.</h4>
+                </div>
+                <div th:if="${recentCourses != null && #lists.size(recentCourses) > 0}">
+                    <div class="row mb-4">
+                        <div class="col-lg-3 col-md-4 col-sm-6 mb-4" th:each="course : ${recentCourses}">
+                            <div class="card h-100">
+                                <img th:src="${course.image}" class="card-img-top w-100"
+                                     style="height: 200px; object-fit: cover;" alt="Course Image">
+                                <div class="card-body d-flex flex-column">
+                                    <h5 class="card-title" th:text="${course.name}"></h5>
+                                    <p class="card-text" th:text="${course.description}"></p>
+                                    <a th:href="@{/student/courses/{courseId}/learn(courseId=${course.id})}"
+                                       class="btn btn-success mt-auto">Continue Learning</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- All Enrolled Courses -->
+                <h3 class="mt-5 mb-4 pb-2">My Courses</h3>
+                <div th:if="${#lists.isEmpty(enrolledCourses)}" class="text-center text-muted py-5">
+                    <h4>No enrolled courses found.</h4>
+                </div>
+                <div class="row" style="max-height: 100%; overflow-y: auto;">
+                    <div class="col-lg-3 col-md-4 col-sm-6 mb-4" th:each="course : ${enrolledCourses}">
+                        <div class="card h-100">
+                            <img th:src="${course.image}" class="card-img-top w-100" style="height: 200px; object-fit: cover;"
+                                 alt="Course Image">
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title" th:text="${course.name}"></h5>
+                                <p class="card-text" th:text="${course.description}"></p>
+                                <a th:href="@{/student/courses/{courseId}/learn(courseId=${course.id})}"
+                                   class="btn btn-primary mt-auto">Start Learning</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- All Other Courses -->
+                <h3 class="mt-5 mb-4 pb-2">Discover more courses</h3>
+                <div th:if="${#lists.isEmpty(courses)}" class="text-center text-muted py-5">
+                    <h4>No courses found.</h4>
+                </div>
+                <div class="row" style="max-height: 100%; overflow-y: auto;">
+                    <div class="col-lg-3 col-md-4 col-sm-6 mb-4" th:each="course : ${courses}">
+                        <div class="card h-100">
+                            <img th:src="${course.image}" class="card-img-top w-100" style="height: 200px; object-fit: cover;"
+                                 alt="Course Image">
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title" th:text="${course.name}"></h5>
+                                <p class="card-text" th:text="${course.description}"></p>
+                                <div th:if="${enrolledCourseIds.contains(course.id)}" class="mt-auto d-flex justify-content-between gap-2">
+                                    <a th:href="@{/student/courses/{courseId}/learn(courseId=${course.id})}"
+                                       class="btn btn-primary w-50">Start Learning</a>
+                                    <a th:href="@{/student/courses/{courseId}(courseId=${course.id})}"
+                                       class="btn btn-outline-primary w-50">Detail</a>
+                                </div>
+                                <div th:unless="${enrolledCourseIds.contains(course.id)}" class="mt-auto">
+                                    <a th:href="@{/student/courses/{courseId}(courseId=${course.id})}"
+                                       class="btn btn-outline-primary w-100">Detail</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Certifications -->
+            <div th:if="${activeTab == 'certifications'}">
+                <h3 class="mt-5 mb-4 pb-2">Certifications</h3>
+                <div th:replace="~{student_learnings/my_certifications :: certifications}"></div>
+            </div>
+
+            <!-- Archived -->
+            <div th:if="${activeTab == 'archived'}">
+                <h3 class="mt-5 mb-4 pb-2">Archived Courses</h3>
+                <div class="text-center text-muted py-5">
+                    <h4>This section is under development and will be available soon.</h4>
+                </div>
+            </div>
+            <!-- Learning Tools -->
+            <div th:if="${activeTab == 'learningTools'}">
+                <h3 class="mt-5 mb-4 pb-2">Learning Tools</h3>
+                <div class="text-center text-muted py-5">
+                    <h4>This section is under development and will be available soon.</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript to handle tab switching -->
+    <script>
+        function setActiveTab(tab) {
+            window.location.href = '/student/courses?tab=' + tab;
+        }
+    </script>
+</div>

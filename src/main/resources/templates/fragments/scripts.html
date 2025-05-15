@@ -1,0 +1,232 @@
+<script th:fragment="menu-scripts">
+  document.addEventListener("DOMContentLoaded", function () {
+    // Sidebar functionality
+    const slidebar = document.getElementById("slidebar");
+    const smallSlidebar = document.getElementById("smallSlidebar");
+    const mainContent = document.getElementById("mainContent");
+    const toggleButton = document.querySelector(".navbar-toggler");
+
+    // Get sidebar state from localStorage, default to 0 if not set
+    let slidebarState = parseInt(localStorage.getItem("slidebarState")) || 0;
+
+    function applySidebarState() {
+      if (slidebarState === 0) {
+        slidebar.classList.add("d-none");
+        smallSlidebar.classList.add("d-none");
+        mainContent.classList.remove(
+          "col-md-9",
+          "col-lg-10",
+          "col-md-10",
+          "col-lg-11"
+        );
+        mainContent.classList.add("col-md-12");
+      } else if (slidebarState === 1) {
+        slidebar.classList.add("d-none");
+        smallSlidebar.classList.remove("d-none");
+        mainContent.classList.remove("col-md-12", "col-md-9", "col-lg-10");
+        mainContent.classList.add("col-md-10", "col-lg-11");
+      } else {
+        smallSlidebar.classList.add("d-none");
+        slidebar.classList.remove("d-none");
+        mainContent.classList.remove("col-md-12", "col-md-10", "col-lg-11");
+        mainContent.classList.add("col-md-9", "col-lg-10");
+      }
+    }
+
+    // Apply saved state when page loads
+    applySidebarState();
+
+    toggleButton.addEventListener("click", function () {
+      if (slidebarState === 0) {
+        slidebarState = 1;
+      } else if (slidebarState === 1) {
+        slidebarState = 2;
+      } else {
+        slidebarState = 0;
+      }
+
+      localStorage.setItem("slidebarState", slidebarState);
+      applySidebarState();
+    });
+
+    // Course selection functionality
+    const moveRightButton = document.getElementById("moveRight");
+    const moveLeftButton = document.getElementById("moveLeft");
+
+    if (moveRightButton && moveLeftButton) {
+      moveRightButton.addEventListener("click", function () {
+        const availableCourses = document.getElementById("availableCourses");
+        const selectedCourses = document.getElementById("selectedCourses");
+        const selectedOptions = Array.from(availableCourses.selectedOptions);
+
+        selectedOptions.forEach((option) => {
+          selectedCourses.appendChild(option);
+        });
+
+        updateHiddenInputs();
+      });
+
+      moveLeftButton.addEventListener("click", function () {
+        const availableCourses = document.getElementById("availableCourses");
+        const selectedCourses = document.getElementById("selectedCourses");
+        const selectedOptions = Array.from(selectedCourses.selectedOptions);
+
+        selectedOptions.forEach((option) => {
+          availableCourses.appendChild(option);
+        });
+
+        updateHiddenInputs();
+      });
+    }
+
+    function updateHiddenInputs() {
+      const selectedCourses = document.getElementById("selectedCourses");
+      const hiddenInputsContainer = document.getElementById("hiddenInputs");
+
+      if (selectedCourses && hiddenInputsContainer) {
+        hiddenInputsContainer.innerHTML = "";
+        const selectedOptions = Array.from(selectedCourses.selectedOptions);
+
+        selectedOptions.forEach((option) => {
+          const hiddenInput = document.createElement("input");
+          hiddenInput.type = "hidden";
+          hiddenInput.name = "courses";
+          hiddenInput.value = option.value;
+          hiddenInputsContainer.appendChild(hiddenInput);
+        });
+      }
+    }
+
+    // Menu highlighting and dropdown functionality
+    const currentPath = window.location.pathname;
+
+    // Highlight active menu items
+    const menuItems = document.querySelectorAll(".dropdown-item");
+    menuItems.forEach((item) => {
+      const itemUrl = item.getAttribute("data-module-url");
+      if (currentPath.startsWith(itemUrl)) {
+        item.classList.add("active");
+        const parentDropdown = item.closest(".dropdown");
+        if (parentDropdown) {
+          const dropdownToggle =
+            parentDropdown.querySelector(".dropdown-toggle");
+          if (dropdownToggle) {
+            dropdownToggle.setAttribute("aria-expanded", "true");
+            const dropdownMenu = parentDropdown.querySelector(".dropdown-menu");
+            if (dropdownMenu) {
+              dropdownMenu.classList.add("show");
+            }
+          }
+        }
+      }
+    });
+
+    // Small sidebar menu highlighting
+    const smallMenuItems = document.querySelectorAll(".small-sidebar-nav-link");
+    smallMenuItems.forEach((item) => {
+      const itemUrl = item.getAttribute("data-module-url");
+      if (currentPath.startsWith(itemUrl)) {
+        item.classList.add("active");
+      }
+    });
+
+    // Dropdown state management
+    const dropdowns = document.querySelectorAll(".dropdown");
+    dropdowns.forEach((dropdown) => {
+      const toggle = dropdown.querySelector(".dropdown-toggle");
+      const menu = dropdown.querySelector(".dropdown-menu");
+
+      if (toggle && menu) {
+        const isExpanded =
+          localStorage.getItem(`dropdown-${dropdown.dataset.id}`) === "true";
+        if (isExpanded) {
+          toggle.setAttribute("aria-expanded", "true");
+          menu.classList.add("show");
+        }
+
+        toggle.addEventListener("click", () => {
+          dropdowns.forEach((otherDropdown) => {
+            if (otherDropdown !== dropdown) {
+              const otherToggle =
+                otherDropdown.querySelector(".dropdown-toggle");
+              const otherMenu = otherDropdown.querySelector(".dropdown-menu");
+              if (otherToggle && otherMenu) {
+                otherToggle.setAttribute("aria-expanded", "false");
+                otherMenu.classList.remove("show");
+                localStorage.setItem(
+                  `dropdown-${otherDropdown.dataset.id}`,
+                  "false"
+                );
+              }
+            }
+          });
+
+          const isExpanded = toggle.getAttribute("aria-expanded") === "true";
+          localStorage.setItem(`dropdown-${dropdown.dataset.id}`, isExpanded);
+        });
+      }
+    });
+
+    // Initialize hidden inputs on page load
+    updateHiddenInputs();
+  });
+</script>
+
+<script th:fragment="menu-highlight-scripts">
+  document.addEventListener("DOMContentLoaded", function () {
+    // Highlight for slidebar
+    const currentPath = window.location.pathname;
+    const slidebarMenuItems = document.querySelectorAll(".slidebar-item");
+    const smallSlidebarMenuItems = document.querySelectorAll(
+      ".small-sidebar-nav-link"
+    );
+    const expandedMenuItems = document.querySelectorAll(".link-module");
+
+    // Highlight slidebar items
+    slidebarMenuItems.forEach((item) => {
+        let itemUrl = new URL(item.href).pathname;
+     // const itemUrl = item.getAttribute("data-module-url");
+      if (currentPath === itemUrl) {
+        item.classList.add("active");
+
+        // Expand parent dropdown
+        const parentDropdown = item.closest(".dropdown");
+        if (parentDropdown) {
+          const dropdownToggle =
+            parentDropdown.querySelector(".dropdown-toggle");
+          if (dropdownToggle) {
+            dropdownToggle.setAttribute("aria-expanded", "true");
+            const dropdownMenu = parentDropdown.querySelector(".dropdown-menu");
+            if (dropdownMenu) {
+              dropdownMenu.classList.add("show");
+            }
+          }
+        }
+      }
+    });
+
+    // Highlight small slidebar items
+    smallSlidebarMenuItems.forEach((item) => {
+      let itemUrl = new URL(item.href).pathname;
+      // const itemUrl = item.getAttribute("data-module-url");
+      if (currentPath === itemUrl) {
+        item.classList.add("active");
+      }
+    });
+
+    // Highlight expanded sidebar items
+    expandedMenuItems.forEach((link) => {
+      let linkPath = new URL(link.href).pathname;
+      // const linkPath = new URL(link.href).pathname;
+      if (linkPath === currentPath) {
+        link.classList.add("active");
+
+        // Expand parent group
+        const parentUl = link.closest("ul.collapse");
+        if (parentUl) {
+          parentUl.classList.add("show");
+        }
+      }
+    });
+  });
+</script>
